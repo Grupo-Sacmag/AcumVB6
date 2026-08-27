@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{5E9E78A0-531B-11CF-91F6-C2863C385E30}#1.0#0"; "msflxgrd.ocx"
+Object = "{5E9E78A0-531B-11CF-91F6-C2863C385E30}#1.0#0"; "MSFLXGRD.OCX"
 Begin VB.Form OtrosIngr 
    Caption         =   "Otros ingresos"
    ClientHeight    =   5565
@@ -286,3 +286,5 @@ Private Sub OIEdSelT_Click()
    IngTot.ColSel = IngTot.Cols - 1
    IngTot.RowSel = IngTot.Rows - 1
 End Sub
+
+' comentario

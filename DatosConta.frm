@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "ComDlg32.OCX"
 Begin VB.Form DatosConta 
    Caption         =   "Ubicacion Archivo de Datos para captura contable"
    ClientHeight    =   4980
@@ -128,3 +128,4 @@ Sub regis_tro()
    Text1(4).Text = UCase(personal.rfc)
   End Sub
 
+' comentario

@@ -459,28 +459,73 @@ Dim AntValor As Currency, ActValor As Currency
    r = r - 1
 End Sub
 Sub inicio()
-On Error GoTo saltalo
- Rem MsgBox "Entrando "
- Open "C:\GconTa\sccontr.soc" For Random As 3 Len = Len(SCont)
-    Get 3, 1, SCont
-    Rem MsgBox "nombre del programa " + SCont.guarda
-    If SCont.guarda <= " " Then
-        ChDir "C:\GconTA"
-        Put 3, 1, SCont
-    Else
-        ChDir SCont.guarda
-    End If
-saltalo:
+
+    On Error GoTo DirectorioNoDisponible
+
     Close 3
-    
+
+    Open "C:\GconTa\sccontr.soc" For Random As 3 Len = Len(SCont)
+
+    Get 3, 1, SCont
+
+    Close 3
+
+    '------------------------------------------------------
+    ' MISMO COMPORTAMIENTO QUE EL ORIGINAL
+    '------------------------------------------------------
+    If Trim$(SCont.guarda) <= " " Then
+
+        ChDir "C:\GconTA"
+
+    Else
+
+        ' Intentar utilizar directamente la ruta guardada.
+        '
+        ' NO validamos archivos.
+        ' Si existe, continúa normalmente.
+        ' Si ya no existe, salta al manejador.
+        ChDir Trim$(SCont.guarda)
+
+    End If
+
+    Exit Sub
+
+
+DirectorioNoDisponible:
+
+    Close 3
+    Err.Clear
+
+    MsgBox "El directorio guardado ya no está disponible." & _
+           vbCrLf & vbCrLf & _
+           "Es posible que haya sido movido, eliminado o renombrado." & _
+           vbCrLf & _
+           "Seleccione nuevamente el directorio de trabajo.", _
+           vbExclamation, _
+           "Directorio no disponible"
+
+    Load Camdir
+    Camdir.Show 1
+
+    '------------------------------------------------------
+    ' Camdir es modal.
+    '
+    ' Si el usuario guardó una nueva ruta, volvemos
+    ' a ejecutar inicio para cargarla.
+    '
+    ' Si decidió cerrar la aplicación, Camdir hará End
+    ' y nunca llegará a esta línea.
+    '------------------------------------------------------
+    inicio
+
 End Sub
 
 Sub Apertura()
-    miarchivo = dir("Auxiliar", vbDirectory)
+    miarchivo = Dir("Auxiliar", vbDirectory)
     Rem ******   Verifica que Exista el archivo de auxiliares *****
     If miarchivo = "" Then
-       respuesta = MsgBox("No existe el Subdirectorio de Auxiliares desea crearlo ", vbYesNo, "Auxiliares ")
-       If respuesta = vbYes Then
+       Respuesta = MsgBox("No existe el Subdirectorio de Auxiliares desea crearlo ", vbYesNo, "Auxiliares ")
+       If Respuesta = vbYes Then
               MkDir "AUXILIAR"
        End If
     End If
@@ -588,7 +633,7 @@ End Sub
 
 
 Private Sub ACUM_Click()
-    Dim respuesta As Integer
+    Dim Respuesta As Integer
 
     ' Asegurar que "case" es la predeterminada
     'Este if solamente se agrega cuando se inicia la app, pues SELECCIONA UNA OPCION es con la que inicia la app
@@ -603,9 +648,9 @@ Private Sub ACUM_Click()
     
     'Si es diferente a la opcion predeterminada, empieza a rellenar Directorio1 y Directorio2 con
     Else
-        respuesta = MsgBox(ACUM.Text + " ¿Estás seguro que quieres esta opción?", vbYesNo + vbQuestion, "Confirmación")
+        Respuesta = MsgBox(ACUM.Text + " ¿Estás seguro que quieres esta opción?", vbYesNo + vbQuestion, "Confirmación")
     
-        If respuesta = vbNo Then Exit Sub ' Si el usuario cancela, salir de la función
+        If Respuesta = vbNo Then Exit Sub ' Si el usuario cancela, salir de la función
 
     Select Case ACUM.Text
 
@@ -731,21 +776,21 @@ sigue5:
     End If
 
     ' Procesar archivos del primer directorio (Directorio1)
-    miarchivo = dir(Directorio1) ' Obtener el primer archivo del patrón
+    miarchivo = Dir(Directorio1) ' Obtener el primer archivo del patrón
     Do While miarchivo <> ""
         Ftem = Ftem + 1
         temporal.miarchivo = miarchivo
         Put 10, Ftem, temporal
-        miarchivo = dir() ' Obtener el siguiente archivo
+        miarchivo = Dir() ' Obtener el siguiente archivo
     Loop
 
     ' Procesar archivos del segundo directorio (Directorio2)
-    miarchivo = dir(Directorio2) ' Obtener el primer archivo del patrón
+    miarchivo = Dir(Directorio2) ' Obtener el primer archivo del patrón
     Do While miarchivo <> ""
         Ftem = Ftem + 1
         temporal.miarchivo = miarchivo
         Put 10, Ftem, temporal
-        miarchivo = dir() ' Obtener el siguiente archivo
+        miarchivo = Dir() ' Obtener el siguiente archivo
     Loop
 
     Close 10
@@ -1213,7 +1258,6 @@ Private Sub EdSelt_Click()
    Dacu1.ColSel = Dacu1.Cols - 1
    Dacu1.RowSel = Dacu1.Rows - 1
 End Sub
-
 Private Sub Form_Load()
     Close 1: Open "AcuTemp" For Random As 1 Len = Len(temporal)
     mlen = LOF(1) / Len(temporal)
@@ -2014,7 +2058,7 @@ If (busquedaInicial <> "" And busquedaFinal >= busquedaInicial) Then
         'Next
     'Next
    'MsgBox ("Listo")
-   If dir("Auxiliar\AxNa*.*", vbArchive) <> "" Then
+   If Dir("Auxiliar\AxNa*.*", vbArchive) <> "" Then
     Close 7
     Kill ("Auxiliar\AxNa*.*")
    End If
@@ -2221,3 +2265,5 @@ End Sub
 Private Sub versionActual_Click()
 informacion.Show
 End Sub
+
+' comentario

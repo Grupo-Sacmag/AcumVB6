@@ -233,3 +233,5 @@ End Sub
 Private Sub Form_Unload(Cancel As Integer)
      Clipboard.Clear
 End Sub
+
+' comentario

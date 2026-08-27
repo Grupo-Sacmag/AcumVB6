@@ -70,3 +70,4 @@ Sub derecha(ancho2, ltotal, cadena As String)
     ancho2 = (ltotal - Printer.TextWidth(cadena))
 End Sub
 
+' comentario
