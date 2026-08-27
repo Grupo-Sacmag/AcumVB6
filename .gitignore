@@ -1,0 +1,27 @@
+# Workspace files
+*.vbw
+
+# SourceSafe
+*.scc
+MSSCCPRJ.SCC
+vssver.scc
+
+# Log files
+*.log
+
+# Compiled Binaries and Packages
+*.exe
+*.dll
+*.ocx
+*.cab
+*.CAB
+*.pdm
+*.PDM
+*.zip
+SETUP.LST
+setup.exe
+
+# Temporary Files
+*.tmp
+~*
+*.oca
