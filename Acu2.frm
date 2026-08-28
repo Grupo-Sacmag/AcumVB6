@@ -460,65 +460,175 @@ Dim AntValor As Currency, ActValor As Currency
 End Sub
 Sub inicio()
 
-    On Error GoTo DirectorioNoDisponible
+    Dim RutaGuardada As String
+    Dim Unidad As String
+    Dim ErrorLectura As Boolean
+
+
+ReintentarDirectorio:
+
+    RutaGuardada = ""
+    ErrorLectura = False
+
+
+    '==========================================================
+    ' LEER SCCONTR.SOC
+    '==========================================================
+    On Error Resume Next
 
     Close 3
+    Err.Clear
 
     Open "C:\GconTa\sccontr.soc" For Random As 3 Len = Len(SCont)
 
-    Get 3, 1, SCont
+    If Err.Number <> 0 Then
 
-    Close 3
-
-    '------------------------------------------------------
-    ' MISMO COMPORTAMIENTO QUE EL ORIGINAL
-    '------------------------------------------------------
-    If Trim$(SCont.guarda) <= " " Then
-
-        ChDir "C:\GconTA"
+        ErrorLectura = True
+        Err.Clear
 
     Else
 
-        ' Intentar utilizar directamente la ruta guardada.
-        '
-        ' NO validamos archivos.
-        ' Si existe, continúa normalmente.
-        ' Si ya no existe, salta al manejador.
-        ChDir Trim$(SCont.guarda)
+        Get 3, 1, SCont
+
+        If Err.Number <> 0 Then
+
+            ErrorLectura = True
+            Err.Clear
+
+        Else
+
+            RutaGuardada = Trim$(SCont.guarda)
+
+        End If
 
     End If
+
+    Close 3
+
+    On Error GoTo 0
+
+
+    '==========================================================
+    ' SI EL ARCHIVO ANTIGUO NO SE PUEDE LEER
+    '
+    ' Esto también resuelve automáticamente el primer arranque
+    ' después de cambiar String * 64 por String * 260.
+    '==========================================================
+    If ErrorLectura = True Then
+
+        Load Camdir
+        Camdir.Show 1
+
+        GoTo ReintentarDirectorio
+
+    End If
+
+
+    '==========================================================
+    ' NO HAY RUTA GUARDADA
+    '==========================================================
+    If RutaGuardada = "" Then
+
+        Load Camdir
+        Camdir.Show 1
+
+        GoTo ReintentarDirectorio
+
+    End If
+
+
+    '==========================================================
+    ' INTENTAR CAMBIAR A LA RUTA GUARDADA
+    '==========================================================
+    On Error GoTo DirectorioNoDisponible
+
+
+    ' Cambiar primero la unidad.
+    If Len(RutaGuardada) >= 2 Then
+
+        If Mid$(RutaGuardada, 2, 1) = ":" Then
+
+            Unidad = Left$(RutaGuardada, 1)
+
+            ChDrive Unidad
+
+        End If
+
+    End If
+
+
+    ' Cambiar ahora al directorio.
+    ChDir RutaGuardada
+
+
+    '==========================================================
+    ' VERIFICACIÓN FINAL
+    '
+    ' CurDir$ debe ser exactamente la ruta que leímos.
+    '==========================================================
+    If StrComp( _
+            QuitarDiagonalRuta(CurDir$), _
+            QuitarDiagonalRuta(RutaGuardada), _
+            vbTextCompare) <> 0 Then
+
+        Err.Raise 76
+
+    End If
+
+
+    On Error GoTo 0
 
     Exit Sub
 
 
 DirectorioNoDisponible:
 
-    Close 3
-    Err.Clear
+    Dim NumeroError As Long
+    Dim DescripcionError As String
+
+    NumeroError = Err.Number
+    DescripcionError = Err.Description
+
+    On Error GoTo 0
+
 
     MsgBox "El directorio guardado ya no está disponible." & _
            vbCrLf & vbCrLf & _
-           "Es posible que haya sido movido, eliminado o renombrado." & _
-           vbCrLf & _
+           "Ruta guardada:" & vbCrLf & _
+           RutaGuardada & _
+           vbCrLf & vbCrLf & _
+           "Error " & CStr(NumeroError) & ": " & DescripcionError & _
+           vbCrLf & vbCrLf & _
            "Seleccione nuevamente el directorio de trabajo.", _
            vbExclamation, _
            "Directorio no disponible"
 
+
     Load Camdir
     Camdir.Show 1
 
-    '------------------------------------------------------
-    ' Camdir es modal.
-    '
-    ' Si el usuario guardó una nueva ruta, volvemos
-    ' a ejecutar inicio para cargarla.
-    '
-    ' Si decidió cerrar la aplicación, Camdir hará End
-    ' y nunca llegará a esta línea.
-    '------------------------------------------------------
-    inicio
+    GoTo ReintentarDirectorio
 
 End Sub
+
+
+Private Function QuitarDiagonalRuta(ByVal Ruta As String) As String
+
+    Ruta = Trim$(Ruta)
+
+    If Len(Ruta) > 3 Then
+
+        Do While Right$(Ruta, 1) = "\"
+
+            Ruta = Left$(Ruta, Len(Ruta) - 1)
+
+        Loop
+
+    End If
+
+    QuitarDiagonalRuta = Ruta
+
+End Function
 
 Sub Apertura()
     miarchivo = Dir("Auxiliar", vbDirectory)
@@ -825,28 +935,92 @@ Sub ordenxmes()
 End Sub
 Sub abre()
 
-    Close 1
-    Open "Empresa.Dno" For Random As 1 Len = Len(empresa)
-    
-    Femp = LOF(1) / Len(empresa)
-      
-    If Femp < 1 Then
-        MsgBox "No existen archivos de nomina" & Chr(13) & "cambie el subdirectorio"
-        Close
+    Dim ArchivoNom As String
+
+    '==========================================================
+    ' VERIFICAR QUE REALMENTE EXISTAN ARCHIVOS .NOM
+    '==========================================================
+    ArchivoNom = Dir$("*.NOM")
+
+    If ArchivoNom = "" Then
+
+        MsgBox "No existen archivos de nomina" & Chr(13) & _
+               "cambie el subdirectorio"
+
+        Femp = 0
+
         Exit Sub
+
     End If
-    
-    Get 1, Femp, empresa
-    Acu21.Caption = Acu21.Caption + " " + RTrim(empresa.name) + " " + RTrim(empresa.ao)
-    
+
+
+    '==========================================================
+    ' EMPRESA.DNO
+    ' Mantener la funcionalidad existente
+    '==========================================================
+    Close 1
+
+    If Dir$("Empresa.Dno") <> "" Then
+
+        Open "Empresa.Dno" For Random As 1 Len = Len(empresa)
+
+        Femp = LOF(1) / Len(empresa)
+
+        If Femp > 0 Then
+
+            Get 1, Femp, empresa
+
+            Acu21.Caption = Acu21.Caption + " " + _
+                            RTrim(empresa.name) + " " + _
+                            RTrim(empresa.ao)
+
+        End If
+
+        Close 1
+
+    Else
+
+        ' Hay archivos NOM, por lo tanto el directorio
+        ' sigue siendo válido para la búsqueda de nóminas.
+        Femp = 1
+
+    End If
+
+
+    '==========================================================
+    ' EMPCOMP.DNO
+    '==========================================================
     Close 2
-    
-    Open "EmpComp.dno" For Random As 2 Len = Len(Dat_ide)
-    Femco = LOF(2) / Len(Dat_ide)
-    
+
+    If Dir$("EmpComp.dno") <> "" Then
+
+        Open "EmpComp.dno" For Random As 2 Len = Len(Dat_ide)
+
+        Femco = LOF(2) / Len(Dat_ide)
+
+    Else
+
+        Femco = 0
+
+    End If
+
+
+    '==========================================================
+    ' PERSONAL.DNO
+    '==========================================================
     Close 3
-    Open "Personal.dno" For Random As 3 Len = Len(personal)
-    FPer = LOF(3) / Len(personal)
+
+    If Dir$("Personal.dno") <> "" Then
+
+        Open "Personal.dno" For Random As 3 Len = Len(personal)
+
+        FPer = LOF(3) / Len(personal)
+
+    Else
+
+        FPer = 0
+
+    End If
 
 End Sub
 Sub reconocedornomina()

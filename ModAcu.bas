@@ -1,6 +1,6 @@
 Attribute VB_Name = "ModAcu"
 Type sc
-    guarda As String * 64
+    guarda As String * 260
 End Type
 Type te
     miarchivo As String * 64
@@ -71,3 +71,5 @@ Sub derecha(ancho2, ltotal, cadena As String)
 End Sub
 
 ' comentario
+' comentario
+

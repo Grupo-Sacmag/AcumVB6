@@ -57,16 +57,28 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Private Sub Dir1_Change()
 
-    File1_Click
-    File1_DblClick
+    On Error GoTo ErrorDirectorio
+
+    File1.Path = Dir1.Path
+    Label2.Caption = Dir1.Path
+
+    Exit Sub
+
+ErrorDirectorio:
+
+    Err.Clear
 
 End Sub
 
 
 Private Sub Dir1_KeyPress(KeyAscii As Integer)
 
-    File1_Click
-    File1_DblClick
+    On Error Resume Next
+
+    File1.Path = Dir1.Path
+    Label2.Caption = Dir1.Path
+
+    On Error GoTo 0
 
 End Sub
 
@@ -75,84 +87,223 @@ Private Sub Drive1_Change()
 
     On Error GoTo manejodrive
 
-    ChDrive Drive1.Drive
+    ChDrive Left$(Drive1.Drive, 1)
 
     Dir1.Path = Drive1.Drive
-    Dir1 = Dir1.Path
-
-    Dir1_Change
-
-    GoTo saledriv
-
-
-manejodrive:
-
-    Drive1.Drive = "C:"
-    Dir1 = "C:\"
-
-
-saledriv:
-
-End Sub
-
-
-Private Sub File1_Click()
-
-    If Dir1.Path <> Dir1.List(Dir1.ListIndex) Then
-
-        Dir1.Path = Dir1.List(Dir1.ListIndex)
-
-        File1 = Dir1.Path
-
-        Exit Sub
-
-    End If
-
-    File1 = Dir1.Path
-
-End Sub
-
-
-Private Sub File1_DblClick()
-
-    On Error GoTo ErrorDirectorio
-
-    File1 = Dir1.Path
-
-    ChDir CurDir(Dir1)
+    File1.Path = Dir1.Path
 
     Label2.Caption = Dir1.Path
 
     Exit Sub
 
 
-ErrorDirectorio:
+manejodrive:
 
     Err.Clear
 
-    MsgBox "No fue posible acceder al directorio seleccionado.", _
-           vbExclamation, _
-           "Directorio"
+    On Error Resume Next
+
+    Drive1.Drive = "C:"
+    ChDrive "C"
+    Dir1.Path = "C:\"
+    File1.Path = "C:\"
+    Label2.Caption = "C:\"
+
+    On Error GoTo 0
+
+End Sub
+
+
+Private Sub File1_Click()
+
+    ' File1 solamente debe mostrar los archivos
+    ' del directorio seleccionado.
+    '
+    ' NO debe cambiar Dir1.Path.
+
+    On Error Resume Next
+
+    File1.Path = Dir1.Path
+    Label2.Caption = Dir1.Path
+
+    On Error GoTo 0
+
+End Sub
+
+
+Private Sub File1_DblClick()
+
+    Dim RutaSeleccionada As String
+
+    RutaSeleccionada = Trim$(Dir1.Path)
+
+    If RutaSeleccionada = "" Then Exit Sub
+
+    If CambiarADirectorio(RutaSeleccionada) Then
+
+        File1.Path = RutaSeleccionada
+        Label2.Caption = RutaSeleccionada
+
+    Else
+
+        MsgBox "No fue posible acceder al directorio seleccionado." & _
+               vbCrLf & vbCrLf & _
+               RutaSeleccionada, _
+               vbExclamation, _
+               "Directorio"
+
+    End If
 
 End Sub
 
 
 Private Sub Form_Load()
 
-    Label2.Caption = Dir1
+    On Error Resume Next
+
+    Label2.Caption = Dir1.Path
+    File1.Path = Dir1.Path
+
+    On Error GoTo 0
 
 End Sub
 
 
+Private Function CambiarADirectorio(ByVal Ruta As String) As Boolean
+
+    Dim Unidad As String
+
+    CambiarADirectorio = False
+
+    Ruta = Trim$(Ruta)
+
+    If Ruta = "" Then Exit Function
+
+    On Error GoTo ErrorDirectorio
+
+
+    '==========================================================
+    ' CAMBIAR UNIDAD
+    '==========================================================
+    If Len(Ruta) >= 2 Then
+
+        If Mid$(Ruta, 2, 1) = ":" Then
+
+            Unidad = Left$(Ruta, 1)
+            ChDrive Unidad
+
+        End If
+
+    End If
+
+
+    '==========================================================
+    ' CAMBIAR DIRECTORIO
+    '==========================================================
+    ChDir Ruta
+
+
+    '==========================================================
+    ' COMPROBAR QUE REALMENTE QUEDAMOS EN ESA CARPETA
+    '==========================================================
+    If StrComp( _
+            QuitarDiagonalFinal(CurDir$), _
+            QuitarDiagonalFinal(Ruta), _
+            vbTextCompare) <> 0 Then
+
+        Exit Function
+
+    End If
+
+
+    CambiarADirectorio = True
+
+    Exit Function
+
+
+ErrorDirectorio:
+
+    Err.Clear
+    CambiarADirectorio = False
+
+End Function
+
+
+Private Function QuitarDiagonalFinal(ByVal Ruta As String) As String
+
+    Ruta = Trim$(Ruta)
+
+    If Len(Ruta) > 3 Then
+
+        Do While Right$(Ruta, 1) = "\"
+
+            Ruta = Left$(Ruta, Len(Ruta) - 1)
+
+        Loop
+
+    End If
+
+    QuitarDiagonalFinal = Ruta
+
+End Function
+
+
 Private Sub GuardarDirectorio()
+
+    Dim RutaSeleccionada As String
 
     On Error GoTo ErrorGuardar
 
+    RutaSeleccionada = Trim$(Dir1.Path)
+
+    If RutaSeleccionada = "" Then
+
+        MsgBox "No hay un directorio seleccionado.", _
+               vbExclamation, _
+               "Directorio"
+
+        Exit Sub
+
+    End If
+
+
+    '==========================================================
+    ' COMPROBAR PRIMERO QUE LA RUTA SEA REAL
+    '==========================================================
+    If CambiarADirectorio(RutaSeleccionada) = False Then
+
+        MsgBox "No fue posible acceder al directorio seleccionado." & _
+               vbCrLf & vbCrLf & _
+               RutaSeleccionada, _
+               vbExclamation, _
+               "Directorio"
+
+        Exit Sub
+
+    End If
+
+
+    '==========================================================
+    ' RECREAR SCCONTR.SOC
+    '
+    ' IMPORTANTE:
+    ' Antes usaba un registro de 64 caracteres.
+    ' Ahora utiliza 260.
+    '
+    ' Por eso eliminamos el archivo anterior antes de guardar.
+    '==========================================================
     Close 3
+
+    If Dir$("C:\GconTa\sccontr.soc") <> "" Then
+
+        Kill "C:\GconTa\sccontr.soc"
+
+    End If
+
 
     Open "C:\GconTa\sccontr.soc" For Random As 3 Len = Len(SCont)
 
-    SCont.guarda = Dir1
+    SCont.guarda = RutaSeleccionada
 
     Put 3, 1, SCont
 
@@ -163,11 +314,21 @@ Private Sub GuardarDirectorio()
 
 ErrorGuardar:
 
+    Dim NumeroError As Long
+    Dim DescripcionError As String
+
+    NumeroError = Err.Number
+    DescripcionError = Err.Description
+
+    On Error Resume Next
     Close 3
+    On Error GoTo 0
 
     MsgBox "No fue posible guardar el directorio seleccionado." & _
+           vbCrLf & vbCrLf & _
+           "Error: " & CStr(NumeroError) & _
            vbCrLf & _
-           Err.Description, _
+           DescripcionError, _
            vbExclamation, _
            "Directorio"
 
@@ -177,6 +338,10 @@ End Sub
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
 
     Dim Respuesta As Integer
+    Dim RutaSeleccionada As String
+
+    RutaSeleccionada = Trim$(Dir1.Path)
+
 
     Respuesta = MsgBox( _
         "¿Desea guardar el directorio seleccionado?" & vbCrLf & vbCrLf & _
@@ -186,43 +351,59 @@ Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
         vbYesNoCancel + vbQuestion, _
         "Cambio de directorio")
 
+
     Select Case Respuesta
 
 
-        '==================================================
+        '==========================================================
         ' SÍ
-        ' Guardar la ruta exactamente como lo hacía
-        ' originalmente Camdir.
-        '==================================================
+        '==========================================================
         Case vbYes
 
-            On Error GoTo ErrorDirectorio
+            If RutaSeleccionada = "" Then
 
-            ' Intentar colocarnos en el directorio
-            ' seleccionado.
-            ChDir Dir1.Path
+                MsgBox "No hay un directorio seleccionado.", _
+                       vbExclamation, _
+                       "Directorio"
 
-            ' NO verificamos archivos.
+                Cancel = True
+                Exit Sub
+
+            End If
+
+
+            ' Comprobar físicamente que la carpeta se puede usar.
+            If CambiarADirectorio(RutaSeleccionada) = False Then
+
+                MsgBox "No fue posible acceder al directorio seleccionado." & _
+                       vbCrLf & vbCrLf & _
+                       RutaSeleccionada, _
+                       vbExclamation, _
+                       "Directorio no disponible"
+
+                Cancel = True
+                Exit Sub
+
+            End If
+
+
             GuardarDirectorio
 
             Exit Sub
 
 
-        '==================================================
+        '==========================================================
         ' NO
-        ' Cerrar TODA la aplicación sin cambiar
-        ' sccontr.soc.
-        '==================================================
+        '==========================================================
         Case vbNo
 
             Close
             End
 
 
-        '==================================================
+        '==========================================================
         ' CANCELAR
-        ' Regresar al selector de directorios.
-        '==================================================
+        '==========================================================
         Case vbCancel
 
             Cancel = True
@@ -230,21 +411,5 @@ Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
 
     End Select
 
-    Exit Sub
-
-
-ErrorDirectorio:
-
-    Err.Clear
-
-    MsgBox "No fue posible acceder al directorio seleccionado." & _
-           vbCrLf & vbCrLf & _
-           "Seleccione otro directorio.", _
-           vbExclamation, _
-           "Directorio no disponible"
-
-    Cancel = True
-
 End Sub
 
-' comentario
