@@ -10,7 +10,7 @@ Begin VB.Form informacion
    ScaleWidth      =   4440
    StartUpPosition =   3  'Windows Default
    Begin VB.Label Label6 
-      Caption         =   "12 de Noviembre 2025"
+      Caption         =   "28 de Agosto de 2026"
       Height          =   300
       Left            =   2505
       TabIndex        =   5
@@ -26,7 +26,7 @@ Begin VB.Form informacion
       Width           =   1500
    End
    Begin VB.Label Label4 
-      Caption         =   "3.0.0"
+      Caption         =   "3.1.0"
       Height          =   300
       Left            =   2520
       TabIndex        =   3
