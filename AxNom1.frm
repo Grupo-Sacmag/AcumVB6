@@ -48,7 +48,12 @@ Attribute VB_Exposed = False
 Dim NoAch As String, FinAx2 As Long
 Public tipo As Boolean
 
+' NUEVO: 5 columnas al final (23 a 27) para no mover las columnas existentes
+Const NCOLS As Long = 28      ' total de columnas (0 a 27)
+Const ULT_COL As Long = 27    ' ultima columna con importes
+
 Sub ReAper()
+    Axn1.Cols = NCOLS         ' NUEVO
     Axn1.Row = 0
     Axn1.Col = 0: Axn1.CellFontBold = True: Axn1.ColWidth(0) = 600: Axn1.CellAlignment = 3: Axn1.Text = "Núm."
     Axn1.ColAlignment(0) = 4
@@ -74,6 +79,12 @@ Sub ReAper()
     Axn1.Col = 20: Axn1.CellFontBold = True: Axn1.ColWidth(20) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Pensión Ali"
     Axn1.Col = 21: Axn1.CellFontBold = True: Axn1.ColWidth(21) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Fonacot"
     Axn1.Col = 22: Axn1.CellFontBold = True: Axn1.ColWidth(22) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Infonavit"
+    ' ---- NUEVO: columnas LIQ y ESP ----
+    Axn1.Col = 23: Axn1.CellFontBold = True: Axn1.ColWidth(23) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "Compensaciones"
+    Axn1.Col = 24: Axn1.CellFontBold = True: Axn1.ColWidth(24) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "P. Antigüedad"
+    Axn1.Col = 25: Axn1.CellFontBold = True: Axn1.ColWidth(25) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "Indemnización"
+    Axn1.Col = 26: Axn1.CellFontBold = True: Axn1.ColWidth(26) = 1600: Axn1.CellAlignment = 3: Axn1.Text = "Sueldos Vacaciones"
+    Axn1.Col = 27: Axn1.CellFontBold = True: Axn1.ColWidth(27) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Bono"
     Axn1.Rows = 1
 End Sub
 
@@ -110,7 +121,7 @@ Private Sub Form_Load()
     Set nombresAgregados = New Collection
 
     ' Inicializar variables
-    Axn1 = 1
+    'Axn1 = 1
     ReAper
 
     ' Asignar nombre
@@ -151,10 +162,11 @@ Private Sub Form_Load()
         If Not repetido Then
             nombresAgregados.Add nombre, nombre
 
-            ' Calcular ingresos
+            ' Calcular ingresos (NUEVO: incluye los conceptos LIQ / ESP)
             InGresos = AxNom.Pnormal + AxNom.Pextra + AxNom.Pviaticos + AxNom.Pvaca + AxNom.Potras + AxNom.Pagui + AxNom.PPTU + AxNom.Pexenta
+            InGresos = InGresos + AxNom.PCompensa + AxNom.PAntiguedad + AxNom.PIndemniza + AxNom.PSueldoVac + AxNom.PBono
 
-            ' Construir entrada para la grilla
+            ' Construir entrada para la grilla (columnas 0 a 22, igual que antes)
             entrada = Format(r, "###0") & Chr(9) & nombre & Chr(9) & _
                       Format(AxNom.Pdias, "###,###,##0.00") & Chr(9) & _
                       Format(AxNom.Pnormal, "###,###,##0.00") & Chr(9) & _
@@ -178,6 +190,15 @@ Private Sub Form_Load()
                       Format(AxNom.DTonacot, "###,###,##0.00") & Chr(9) & _
                       Format(AxNom.DOtrasded, "###,###,##0.00")
 
+            ' NUEVO: columnas 23 a 27 (se arma en otra instrucción porque VB6
+            ' permite máximo 24 continuaciones de línea "_" por instrucción)
+            entrada = entrada & Chr(9) & _
+                      Format(AxNom.PCompensa, "###,###,##0.00") & Chr(9) & _
+                      Format(AxNom.PAntiguedad, "###,###,##0.00") & Chr(9) & _
+                      Format(AxNom.PIndemniza, "###,###,##0.00") & Chr(9) & _
+                      Format(AxNom.PSueldoVac, "###,###,##0.00") & Chr(9) & _
+                      Format(AxNom.PBono, "###,###,##0.00")
+
             ' Agregar la entrada a la grilla
             Axn1.AddItem entrada
         End If
@@ -196,13 +217,23 @@ Private Sub Form_Resize()
 
 End Sub
 Sub cero_s()
-    
+
    For r = 1 To Axn1.Rows - 1
-       For i = 2 To 22
-          If Axn1.TextMatrix(r, i) = 0 Then
-             Axn1.TextMatrix(r, i) = ""
-          End If
+
+       For i = 2 To ULT_COL
+
+            If IsNumeric(Axn1.TextMatrix(r, i)) Then
+
+                If Val(Axn1.TextMatrix(r, i)) = 0 Then
+
+                    Axn1.TextMatrix(r, i) = ""
+
+                End If
+
+            End If
+
        Next i
+
    Next r
 
 End Sub
@@ -210,13 +241,11 @@ Sub sumas()
     Axn1.Row = Axn1.Rows - 1: Axn1.Col = 1: Axn1.CellFontBold = True
     Axn1.CellAlignment = 6: Axn1.TextMatrix((Axn1.Rows - 1), 1) = "Sumas  "
     sum = 0
-    For r = 2 To 22
+    For r = 2 To ULT_COL       ' NUEVO: antes 2 To 22
        For i = 1 To Axn1.Rows - 2
-          If Axn1.TextMatrix(i, r) = "" Then
-             Axn1.TextMatrix(i, r) = ""
-             Else
-             sum = sum + Axn1.TextMatrix(i, r)
-          End If
+          If Trim$(Axn1.TextMatrix(i, r)) <> "" Then
+            sum = sum + Val(Axn1.TextMatrix(i, r))
+        End If
        Next i
        If sum <> 0 Then
             Axn1.Col = r

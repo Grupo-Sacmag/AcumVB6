@@ -242,7 +242,7 @@ Sub Adi_cional()
    tot_diast = 0
    If rgtro <= (LOF(2) / Len(ArAcum)) Then
         Get 2, rgtro, ArAcum
-        Mas_ingresos = ArAcum.Pagui + ArAcum.Pexenta + ArAcum.Pextra + ArAcum.Pnormal + ArAcum.Potras + ArAcum.Pvaca + ArAcum.Pviaticos + ArAcum.PPTU
+        Mas_ingresos = ArAcum.Pagui + ArAcum.Pexenta + ArAcum.Pextra + ArAcum.Pnormal + ArAcum.Potras + ArAcum.Pvaca + ArAcum.Pviaticos + ArAcum.PPTU + ArAcum.PCompensa + ArAcum.PAntiguedad + ArAcum.PIndemniza + ArAcum.PSueldoVac + ArAcum.PBono
         Exencion2
         Ingreso_Gravable2 = Mas_ingresos - Mon_Exento
         Sub_Apl2 = ArAcum.DSubioAp

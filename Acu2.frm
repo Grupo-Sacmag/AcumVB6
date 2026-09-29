@@ -398,11 +398,12 @@ Dim FiNax As Long, EXTRA As Integer, Arch1
 Dim FAcum1 As Long, Fin_Otreg As Long, NoIncLuye As Integer
 Dim busquedaInicial
 Dim busquedaFinal
-Dim nombreArchivo
+Dim NombreArchivo
 Dim numeroArchivo
 Dim filasTemporal
 Dim Directorio1 As String
 Dim Directorio2 As String
+Dim PrefijoArch As String
 Sub EditREp()
    Dim CadAnt As String, CadActual As String
    CadAnt = Trim(Dacu1.TextMatrix(1, 1))
@@ -429,30 +430,26 @@ Sub EditREp()
 End Sub
 Sub Adicionar()
 Dim AntValor As Currency, ActValor As Currency
-   For i = 2 To 22
-          
+   For i = 2 To 31
+       If i < 23 Or i > 26 Then
          If IsNumeric(Dacu1.TextMatrix(r - 1, i)) Then
             AntValor = (Dacu1.TextMatrix(r - 1, i))
-            
             Else
             AntValor = 0
          End If
          If IsNumeric(Dacu1.TextMatrix(r, i)) Then
                     ActValor = (Dacu1.TextMatrix(r, i))
                     ActValor = ActValor + AntValor
-                    
                     Else
-                    
                     ActValor = 0
                     ActValor = ActValor + AntValor
          End If
-        If i = 2 Then
+         If i = 2 Then
                 Dacu1.TextMatrix(r, i) = Format(ActValor, "####0.00")
-                
                 Else
                 Dacu1.TextMatrix(r, i) = Format(ActValor, "###,###,##0.00")
          End If
-        
+       End If
     Next i
  
    Dacu1.RemoveItem r - 1
@@ -643,11 +640,13 @@ End Sub
 
 Sub elecero()
    For r = 1 To Dacu1.Rows - 2
-       For i = 2 To 22
-         If Dacu1.TextMatrix(r, i) = "" Then Dacu1.TextMatrix(r, i) = 0
-          If Dacu1.TextMatrix(r, i) = 0 Then
-             Dacu1.TextMatrix(r, i) = ""
-          End If
+       For i = 2 To 31
+         If i < 23 Or i > 26 Then      ' 23 a 26 son texto (Rfc, Imss, fechas)
+            If Dacu1.TextMatrix(r, i) = "" Then Dacu1.TextMatrix(r, i) = 0
+            If Dacu1.TextMatrix(r, i) = 0 Then
+               Dacu1.TextMatrix(r, i) = ""
+            End If
+         End If
        Next i
    Next r
    sumando
@@ -656,6 +655,23 @@ Sub sumando()
     Dacu1.Row = Dacu1.Rows - 1: Dacu1.Col = 1: Dacu1.CellFontBold = True
     Dacu1.CellAlignment = 6: Dacu1.TextMatrix((Dacu1.Rows - 1), 1) = "Sumas  "
     For r = 2 To 22
+       For i = 1 To Dacu1.Rows - 2
+          If Dacu1.TextMatrix(i, r) = "" Then
+             Dacu1.TextMatrix(i, r) = ""
+             Else
+             sum = sum + Dacu1.TextMatrix(i, r)
+          End If
+       Next i
+       If sum <> 0 Then
+            Dacu1.Col = r
+            Dacu1.CellFontBold = True
+            Dacu1.TextMatrix((Dacu1.Rows - 1), r) = Format(sum, "###,###,##0.00")
+            Else
+            Dacu1.TextMatrix((Dacu1.Rows - 1), r) = ""
+       End If
+       sum = 0
+   Next r
+       For r = 27 To 31
        For i = 1 To Dacu1.Rows - 2
           If Dacu1.TextMatrix(i, r) = "" Then
              Dacu1.TextMatrix(i, r) = ""
@@ -704,6 +720,11 @@ Sub encabezado()
     Dacu1.Col = 24: Dacu1.CellFontBold = True: Dacu1.ColWidth(24) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Imss"
     Dacu1.Col = 25: Dacu1.CellFontBold = True: Dacu1.ColWidth(25) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Alta"
     Dacu1.Col = 26: Dacu1.CellFontBold = True: Dacu1.ColWidth(26) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Baja"
+    Dacu1.Col = 27: Dacu1.CellFontBold = True: Dacu1.ColWidth(27) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "Compensaciones"
+    Dacu1.Col = 28: Dacu1.CellFontBold = True: Dacu1.ColWidth(28) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "P. Antigüedad"
+    Dacu1.Col = 29: Dacu1.CellFontBold = True: Dacu1.ColWidth(29) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "Indemnización"
+    Dacu1.Col = 30: Dacu1.CellFontBold = True: Dacu1.ColWidth(30) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Sueldos Vacaciones"
+    Dacu1.Col = 31: Dacu1.CellFontBold = True: Dacu1.ColWidth(31) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Bono"
 
 End Sub
 
@@ -1063,6 +1084,8 @@ Sub Acumula_todo()
     For r = 1 To Ftem: Get 10, r, temporal
     Rem On Error GoTo manejo1
        temporal.miarchivo = Trim(temporal.miarchivo)
+       Dim TipoNominaActual As TipoNominaAcum
+       TipoNominaActual = ClasificarNominaAcum(temporal.miarchivo)
        Open temporal.miarchivo For Random As 4 Len = Len(nomina)
        fnom = LOF(4) / Len(nomina)
        Arch1 = Trim(temporal.miarchivo)
@@ -1113,15 +1136,23 @@ Sub Acumula_todo()
                     ArAcum.Pdias = ArAcum.Pdias + nomina.dias
                     ArAcum.Pnormal = ArAcum.Pnormal + nomina.sueldo
                     If RTrim(Left(temporal.miarchivo, 3)) = UCase("PRE") Then
-                        
-                        nomina.hs_tri = nomina.viaticos: nomina.viaticos = 0
+                    nomina.hs_tri = nomina.viaticos: nomina.viaticos = 0
                     End If
-                    ArAcum.Pextra = ArAcum.Pextra + (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri)
-                    ArAcum.Pviaticos = ArAcum.Pviaticos + nomina.viaticos
+                    If TipoNominaActual = taLiquidacion Then
+                        ArAcum.PCompensa = ArAcum.PCompensa + nomina.hs_nor
+                        ArAcum.PAntiguedad = ArAcum.PAntiguedad + nomina.hs_dbl
+                        ArAcum.PIndemniza = ArAcum.PIndemniza + nomina.hs_tri
+                        ArAcum.PSueldoVac = ArAcum.PSueldoVac + nomina.viaticos
+                    ElseIf TipoNominaActual = taBono Then
+                        ArAcum.PBono = ArAcum.PBono + nomina.otras
+                    Else
+                        ArAcum.Pextra = ArAcum.Pextra + (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri)
+                        ArAcum.Pviaticos = ArAcum.Pviaticos + nomina.viaticos
+                    End If
                     
                     ArAcum.Pagui = ArAcum.Pagui + nomina.aguin
                     ArAcum.Pvaca = ArAcum.Pvaca + nomina.pvac
-                    ArAcum.Potras = ArAcum.Potras + nomina.otras
+                    If TipoNominaActual <> taBono Then ArAcum.Potras = ArAcum.Potras + nomina.otras
                     ArAcum.PPTU = ArAcum.PPTU + nomina.ptu
                     ArAcum.Pexenta = ArAcum.Pexenta + nomina.exentos
                     ArAcum.DImpto = ArAcum.DImpto + Nom_Com.ImpTot
@@ -1171,6 +1202,7 @@ Sub Acumula_todo()
     For r = 1 To facum: Get 5, r, ArAcum
             Get 13, r, personal
             InGresos = ArAcum.Pnormal + ArAcum.Pextra + ArAcum.Pviaticos + ArAcum.Pvaca + ArAcum.Potras + ArAcum.Pagui + ArAcum.PPTU + ArAcum.Pexenta
+            InGresos = InGresos + ArAcum.PCompensa + ArAcum.PAntiguedad + ArAcum.PIndemniza + ArAcum.PSueldoVac + ArAcum.PBono
             If InGresos <> 0 Then
             nombre = RTrim(personal.ape1) + " " + RTrim(personal.ape2) + " " + RTrim(personal.nom)
             entrada = Format(r, "###0") & Chr(9) & nombre & Chr(9) & Format(ArAcum.Pdias, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pnormal, "###,###,##0.00") & Chr(9) & _
@@ -1184,7 +1216,10 @@ Sub Acumula_todo()
                       & Chr(9) & Format(ArAcum.DSubNoap, "###,###,##0.00") & Chr(9) & Format(ArAcum.DImss, "###,###,##0.00") _
                       & Chr(9) & Format(ArAcum.DPrestamos, "###,###,##0.00") & Chr(9) & Format(ArAcum.DTelefono, "###,###,##0.00") _
                       & Chr(9) & Format(ArAcum.DTonacot, "###,###,##0.00") & Chr(9) & Format(ArAcum.DOtrasded, "###,###,##0.00") _
-                      & Chr(9) & personal.rfc & Chr(9) & ("'" + personal.imss) & Chr(9) & (" " + personal.fal) & Chr(9) & (" " + personal.fab)
+                      & Chr(9) & personal.rfc & Chr(9) & ("'" + personal.imss) & Chr(9) & (" " + personal.fal) & Chr(9) & (" " + personal.fab) _
+                      & Chr(9) & Format(ArAcum.PCompensa, "###,###,##0.00") & Chr(9) & Format(ArAcum.PAntiguedad, "###,###,##0.00") _
+                      & Chr(9) & Format(ArAcum.PIndemniza, "###,###,##0.00") & Chr(9) & Format(ArAcum.PSueldoVac, "###,###,##0.00") _
+                      & Chr(9) & Format(ArAcum.PBono, "###,###,##0.00")
                       
                       
             Dacu1.AddItem entrada
@@ -1198,23 +1233,63 @@ Sub Acumula_todo()
  'Close
 End Sub
 Sub Auxliar()
-    
+
+    Dim TipoNominaActual As TipoNominaAcum
+
+    TipoNominaActual = ClasificarNominaAcum(temporal.miarchivo)
+
     AxNom.Narch = temporal.miarchivo
     AxNom.Pdias = nomina.dias
     AxNom.Pnormal = nomina.sueldo
-    AxNom.Pextra = (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri)
-    AxNom.Pviaticos = nomina.viaticos
+
+    ' Limpiar siempre los acumuladores
+    AxNom.Pextra = 0
+    AxNom.Pviaticos = 0
+    AxNom.Potras = 0
+
+    AxNom.PCompensa = 0
+    AxNom.PAntiguedad = 0
+    AxNom.PIndemniza = 0
+    AxNom.PSueldoVac = 0
+    AxNom.PBono = 0
+
+    Select Case TipoNominaActual
+
+        Case taLiquidacion
+
+            AxNom.PCompensa = nomina.hs_nor
+            AxNom.PAntiguedad = nomina.hs_dbl
+            AxNom.PIndemniza = nomina.hs_tri
+            AxNom.PSueldoVac = nomina.viaticos
+
+            ' Las otras percepciones siguen yendo a Otras
+            AxNom.Potras = nomina.otras
+
+        Case taBono
+
+            ' El bono ya no se duplica en Otras
+            AxNom.PBono = nomina.otras
+
+        Case Else
+
+            AxNom.Pextra = nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri
+            AxNom.Pviaticos = nomina.viaticos
+            AxNom.Potras = nomina.otras
+
+    End Select
+
     AxNom.Pvaca = nomina.pvac
     AxNom.Pagui = nomina.aguin
-    AxNom.Potras = nomina.otras
     AxNom.PPTU = nomina.ptu
     AxNom.Pexenta = nomina.exentos
+
     AxNom.DImpto = Nom_Com.ImpTot
     AxNom.DSubioAp = Nom_Com.subapl
     AxNom.DCrApl = Nom_Com.CreTot
     AxNom.DImpret = nomina.ispt
     AxNom.DCrPag = nomina.crdsal
     AxNom.DSubNoap = Nom_Com.subNap
+
     AxNom.DImss = nomina.imss
     AxNom.DPrestamos = nomina.prestamos
     AxNom.DTonacot = nomina.fonacot
@@ -1224,26 +1299,36 @@ Sub Auxliar()
 End Sub
 
 Sub ceros()
+
     ArAcum.Pdias = 0
+
     ArAcum.Pnormal = 0
     ArAcum.Pextra = 0
     ArAcum.Pviaticos = 0
     ArAcum.Pvaca = 0
     ArAcum.Potras = 0
+    ArAcum.Pagui = 0
     ArAcum.PPTU = 0
     ArAcum.Pexenta = 0
+
+    ArAcum.PCompensa = 0
+    ArAcum.PAntiguedad = 0
+    ArAcum.PIndemniza = 0
+    ArAcum.PSueldoVac = 0
+    ArAcum.PBono = 0
+
     ArAcum.DImpto = 0
     ArAcum.DSubioAp = 0
     ArAcum.DCrApl = 0
     ArAcum.DImpret = 0
     ArAcum.DCrPag = 0
     ArAcum.DSubNoap = 0
+
     ArAcum.DImss = 0
     ArAcum.DPrestamos = 0
     ArAcum.DTonacot = 0
     ArAcum.DTelefono = 0
     ArAcum.DOtrasded = 0
-    ArAcum.Pagui = 0
 
 End Sub
 
@@ -1290,7 +1375,7 @@ Private Sub ArcImp_Click()
                   Printer.CurrentX = 1200
                   Printer.Print Dacu1.TextMatrix(0, c);
                   Printer.Print (" " + RTrim(Dacu1.TextMatrix(r, c)))
-                  Case 2 To 22
+                  Case 2 To 22, 27 To 31
                   If Dacu1.TextMatrix(r, c) <> "" Then
                       Printer.CurrentX = 2400
                       Printer.Print Dacu1.TextMatrix(0, c);
@@ -1433,6 +1518,7 @@ Private Sub EdSelt_Click()
    Dacu1.RowSel = Dacu1.Rows - 1
 End Sub
 Private Sub Form_Load()
+    Dacu1.Cols = 32
     Close 1: Open "AcuTemp" For Random As 1 Len = Len(temporal)
     mlen = LOF(1) / Len(temporal)
     
@@ -1449,145 +1535,145 @@ Private Sub Form_Load()
       ACUM_Click
     For g = 1 To mlen
         Get 1, g, temporal
-        nombreArchivo = Left(Trim(temporal.miarchivo), 6)
-        If (nombreArchivo = "ENE120") Then
+        NombreArchivo = Left(Trim(temporal.miarchivo), 6)
+        If (NombreArchivo = "ENE120") Then
             mesInicial.Item(1).Caption = "ENE1raQuin"
             mesFin.Item(1).Caption = "ENE1raQuin"
         End If
-        If (nombreArchivo = "ENE220") Then
+        If (NombreArchivo = "ENE220") Then
             mesInicial.Item(2).Caption = "ENE2daQuin"
             mesFin.Item(2).Caption = "ENE2daQuin"
             mesInicial.Item(2).Visible = True
             mesFin.Item(2).Visible = True
         End If
-        If (nombreArchivo = "FEB120") Then
+        If (NombreArchivo = "FEB120") Then
             mesInicial.Item(3).Caption = "FEB1raQuin"
             mesFin.Item(3).Caption = "FEB1raQuin"
             mesInicial.Item(3).Visible = True
             mesFin.Item(3).Visible = True
         End If
-        If (nombreArchivo = "FEB220") Then
+        If (NombreArchivo = "FEB220") Then
             mesInicial.Item(4).Caption = "FEB2daQuin"
             mesFin.Item(4).Caption = "FEB2daQuin"
             mesInicial.Item(4).Visible = True
             mesFin.Item(4).Visible = True
         End If
-        If (nombreArchivo = "MAR120") Then
+        If (NombreArchivo = "MAR120") Then
             mesInicial.Item(5).Caption = "MAR1raQuin"
             mesFin.Item(5).Caption = "MAR1raQuin"
             mesInicial.Item(5).Visible = True
             mesFin.Item(5).Visible = True
         End If
-        If (nombreArchivo = "MAR220") Then
+        If (NombreArchivo = "MAR220") Then
             mesInicial.Item(6).Caption = "MAR2daQuin"
             mesFin.Item(6).Caption = "MAR2daQuin"
             mesInicial.Item(6).Visible = True
             mesFin.Item(6).Visible = True
         End If
-        If (nombreArchivo = "ABR120") Then
+        If (NombreArchivo = "ABR120") Then
             mesInicial.Item(7).Caption = "ABR1raQuin"
             mesFin.Item(7).Caption = "ABR1raQuin"
             mesInicial.Item(7).Visible = True
             mesFin.Item(7).Visible = True
         End If
-        If (nombreArchivo = "ABR220") Then
+        If (NombreArchivo = "ABR220") Then
             mesInicial.Item(8).Caption = "ABR2daQuin"
             mesFin.Item(8).Caption = "ABR2daQuin"
             mesInicial.Item(8).Visible = True
             mesFin.Item(8).Visible = True
         End If
-        If (nombreArchivo = "MAY120") Then
+        If (NombreArchivo = "MAY120") Then
             mesInicial.Item(9).Caption = "MAY1raQuin"
             mesFin.Item(9).Caption = "MAY1raQuin"
             mesInicial.Item(9).Visible = True
             mesFin.Item(9).Visible = True
         End If
-        If (nombreArchivo = "MAY220") Then
+        If (NombreArchivo = "MAY220") Then
             mesInicial.Item(10).Caption = "MAY2daQuin"
             mesFin.Item(10).Caption = "MAY2daQuin"
             mesInicial.Item(10).Visible = True
             mesFin.Item(10).Visible = True
         End If
-        If (nombreArchivo = "JUN120") Then
+        If (NombreArchivo = "JUN120") Then
             mesInicial.Item(11).Caption = "JUN1raQuin"
             mesFin.Item(11).Caption = "JUN1raQuin"
             mesInicial.Item(11).Visible = True
             mesFin.Item(11).Visible = True
         End If
-        If (nombreArchivo = "JUN220") Then
+        If (NombreArchivo = "JUN220") Then
             mesInicial.Item(12).Caption = "JUN2daQuin"
             mesFin.Item(12).Caption = "JUN2daQuin"
             mesInicial.Item(12).Visible = True
             mesFin.Item(12).Visible = True
         End If
-        If (nombreArchivo = "JUL120") Then
+        If (NombreArchivo = "JUL120") Then
             mesInicial.Item(13).Caption = "JUL1raQuin"
             mesFin.Item(13).Caption = "JUL1raQuin"
             mesInicial.Item(13).Visible = True
             mesFin.Item(13).Visible = True
         End If
-        If (nombreArchivo = "JUL220") Then
+        If (NombreArchivo = "JUL220") Then
             mesInicial.Item(14).Caption = "JUL2daQuin"
             mesFin.Item(14).Caption = "JUL2daQuin"
             mesInicial.Item(14).Visible = True
             mesFin.Item(14).Visible = True
         End If
-        If (nombreArchivo = "AGO120") Then
+        If (NombreArchivo = "AGO120") Then
             mesInicial.Item(15).Caption = "AGO1raQuin"
             mesFin.Item(15).Caption = "AGO1raQuin"
             mesInicial.Item(15).Visible = True
             mesFin.Item(15).Visible = True
         End If
-        If (nombreArchivo = "AGO220") Then
+        If (NombreArchivo = "AGO220") Then
             mesInicial.Item(16).Caption = "AGO2daQuin"
             mesFin.Item(16).Caption = "AGO2daQuin"
             mesInicial.Item(16).Visible = True
             mesFin.Item(16).Visible = True
         End If
-        If (nombreArchivo = "SEP120") Then
+        If (NombreArchivo = "SEP120") Then
             mesInicial.Item(17).Caption = "SEP1raQuin"
             mesFin.Item(17).Caption = "SEP1raQuin"
             mesInicial.Item(17).Visible = True
             mesFin.Item(17).Visible = True
         End If
-        If (nombreArchivo = "SEP220") Then
+        If (NombreArchivo = "SEP220") Then
             mesInicial.Item(18).Caption = "SEP2daQuin"
             mesFin.Item(18).Caption = "SEP2daQuin"
             mesInicial.Item(18).Visible = True
             mesFin.Item(18).Visible = True
         End If
-        If (nombreArchivo = "OCT120") Then
+        If (NombreArchivo = "OCT120") Then
             mesInicial.Item(19).Caption = "OCT1raQuin"
             mesFin.Item(19).Caption = "OCT1raQuin"
             mesInicial.Item(19).Visible = True
             mesFin.Item(19).Visible = True
         End If
-        If (nombreArchivo = "OCT220") Then
+        If (NombreArchivo = "OCT220") Then
             mesInicial.Item(20).Caption = "OCT2daQuin"
             mesFin.Item(20).Caption = "OCT2daQuin"
             mesInicial.Item(20).Visible = True
             mesFin.Item(20).Visible = True
         End If
         
-        If (nombreArchivo = "NOV120") Then
+        If (NombreArchivo = "NOV120") Then
             mesInicial.Item(21).Caption = "NOV1raQuin"
             mesFin.Item(21).Caption = "NOV1raQuin"
             mesInicial.Item(21).Visible = True
             mesFin.Item(21).Visible = True
         End If
-        If (nombreArchivo = "NOV220") Then
+        If (NombreArchivo = "NOV220") Then
             mesInicial.Item(22).Caption = "NOV2daQuin"
             mesFin.Item(22).Caption = "NOV2daQuin"
             mesInicial.Item(22).Visible = True
             mesFin.Item(22).Visible = True
         End If
-        If (nombreArchivo = "DIC120") Then
+        If (NombreArchivo = "DIC120") Then
             mesInicial.Item(23).Caption = "DIC1raQuin"
             mesFin.Item(23).Caption = "DIC1raQuin"
             mesInicial.Item(23).Visible = True
             mesFin.Item(23).Visible = True
         End If
-        If (nombreArchivo = "DIC220") Then
+        If (NombreArchivo = "DIC220") Then
             mesInicial.Item(24).Caption = "DIC2daQuin"
             mesFin.Item(24).Caption = "DIC2daQuin"
             mesInicial.Item(24).Visible = True
@@ -1647,6 +1733,10 @@ Sub ArchivoInformativo()
        Get 3, Empleado, personal
        Get 5, Empleado, ArAcum
        Get 4, Empleado, Otros_Rgtros
+       
+       ArAcum.Pextra = ArAcum.Pextra + ArAcum.PCompensa + ArAcum.PAntiguedad + ArAcum.PIndemniza
+       ArAcum.Pviaticos = ArAcum.Pviaticos + ArAcum.PSueldoVac
+       ArAcum.Potras = ArAcum.Potras + ArAcum.PBono
        
        If FAcum1 > 0 Then
             Get 16, Empleado, Ot_Acum
@@ -2189,8 +2279,7 @@ Sub ArchivoInformativo()
      AcumSup_Cor = 0: AcumSup_CorEx = 0
     Next r
     Close 3, 5, 12
-    mensaje = "Archivo Generado Ultimo empleado: " + Chr(13) + RTrim(personal.nom) + _
-              " " + RTrim(personal.ape1) + " "
+    mensaje = "Archivo Generado Ultimo empleado: " + Chr(13) + RTrim(personal.nom) + " " + RTrim(personal.ape1) + " "
     MsgBox mensaje
 End Sub
 Sub EliminaGuion(DA_TO, Empleado)
@@ -2260,6 +2349,8 @@ If (busquedaInicial <> "" And busquedaFinal >= busquedaInicial) Then
             nomMesL = Left(Trim(mesInicial.Item(l).Caption), 4)
             If extras = nomMesL Then
                 temporal.miarchivo = Trim(temporal.miarchivo)
+                Dim TipoNominaActual As TipoNominaAcum
+                TipoNominaActual = ClasificarNominaAcum(temporal.miarchivo)
                 Open temporal.miarchivo For Random As 4 Len = Len(nomina)
                 fnom = LOF(4) / Len(nomina)
                 Arch1 = Trim(temporal.miarchivo)
@@ -2310,14 +2401,25 @@ If (busquedaInicial <> "" And busquedaFinal >= busquedaInicial) Then
                             FiNax = FiNax + 1
                             ArAcum.Pdias = ArAcum.Pdias + nomina.dias
                             ArAcum.Pnormal = ArAcum.Pnormal + nomina.sueldo
-                            If RTrim(temporal.miarchivo) = UCase("PREM2005.NOM") Then
-                                nomina.hs_tri = nomina.otras: nomina.otras = 0
+                                                If RTrim(Left(temporal.miarchivo, 3)) = UCase("PRE") Then
+                        
+                            nomina.hs_tri = nomina.viaticos: nomina.viaticos = 0
                             End If
-                            ArAcum.Pextra = ArAcum.Pextra + (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri)
-                            ArAcum.Pviaticos = ArAcum.Pviaticos + nomina.viaticos
+        
+                            If TipoNominaActual = taLiquidacion Then
+                                ArAcum.PCompensa = ArAcum.PCompensa + nomina.hs_nor
+                                ArAcum.PAntiguedad = ArAcum.PAntiguedad + nomina.hs_dbl
+                                ArAcum.PIndemniza = ArAcum.PIndemniza + nomina.hs_tri
+                                ArAcum.PSueldoVac = ArAcum.PSueldoVac + nomina.viaticos
+                            ElseIf TipoNominaActual = taBono Then
+                                ArAcum.PBono = ArAcum.PBono + nomina.otras
+                            Else
+                                ArAcum.Pextra = ArAcum.Pextra + (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri)
+                                ArAcum.Pviaticos = ArAcum.Pviaticos + nomina.viaticos
+                            End If
                             ArAcum.Pagui = ArAcum.Pagui + nomina.aguin
                             ArAcum.Pvaca = ArAcum.Pvaca + nomina.pvac
-                            ArAcum.Potras = ArAcum.Potras + nomina.otras
+                            If TipoNominaActual <> taBono Then ArAcum.Potras = ArAcum.Potras + nomina.otras
                             ArAcum.PPTU = ArAcum.PPTU + nomina.ptu
                             ArAcum.Pexenta = ArAcum.Pexenta + nomina.exentos
                             ArAcum.DImpto = ArAcum.DImpto + Nom_Com.ImpTot
@@ -2369,6 +2471,7 @@ If (busquedaInicial <> "" And busquedaFinal >= busquedaInicial) Then
     For r = 1 To facum: Get 5, r, ArAcum
             Get 13, r, personal
             InGresos = ArAcum.Pnormal + ArAcum.Pextra + ArAcum.Pviaticos + ArAcum.Pvaca + ArAcum.Potras + ArAcum.Pagui + ArAcum.PPTU + ArAcum.Pexenta
+            InGresos = InGresos + ArAcum.PCompensa + ArAcum.PAntiguedad + ArAcum.PIndemniza + ArAcum.PSueldoVac + ArAcum.PBono
             If InGresos <> 0 Then
             nombre = RTrim(personal.ape1) + " " + RTrim(personal.ape2) + " " + RTrim(personal.nom)
             entrada = Format(r, "###0") & Chr(9) & nombre & Chr(9) & Format(ArAcum.Pdias, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pnormal, "###,###,##0.00") & Chr(9) & _
@@ -2382,7 +2485,10 @@ If (busquedaInicial <> "" And busquedaFinal >= busquedaInicial) Then
                       & Chr(9) & Format(ArAcum.DSubNoap, "###,###,##0.00") & Chr(9) & Format(ArAcum.DImss, "###,###,##0.00") _
                       & Chr(9) & Format(ArAcum.DPrestamos, "###,###,##0.00") & Chr(9) & Format(ArAcum.DTelefono, "###,###,##0.00") _
                       & Chr(9) & Format(ArAcum.DTonacot, "###,###,##0.00") & Chr(9) & Format(ArAcum.DOtrasded, "###,###,##0.00") _
-                      & Chr(9) & personal.rfc & Chr(9) & (" " + personal.imss) & Chr(9) & (" " + personal.fal) & Chr(9) & (" " + personal.fab)
+                      & Chr(9) & personal.rfc & Chr(9) & ("'" + personal.imss) & Chr(9) & (" " + personal.fal) & Chr(9) & (" " + personal.fab) _
+                      & Chr(9) & Format(ArAcum.PCompensa, "###,###,##0.00") & Chr(9) & Format(ArAcum.PAntiguedad, "###,###,##0.00") _
+                      & Chr(9) & Format(ArAcum.PIndemniza, "###,###,##0.00") & Chr(9) & Format(ArAcum.PSueldoVac, "###,###,##0.00") _
+                      & Chr(9) & Format(ArAcum.PBono, "###,###,##0.00")
             
             Dacu1.AddItem entrada
             
@@ -2441,3 +2547,5 @@ informacion.Show
 End Sub
 
 ' comentario
+
+
