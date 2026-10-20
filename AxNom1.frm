@@ -46,7 +46,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Dim NoAch As String, FinAx2 As Long
-Public tipo As Boolean
+Public Tipo As Boolean
 
 ' NUEVO: 5 columnas al final (23 a 27) para no mover las columnas existentes
 Const NCOLS As Long = 28      ' total de columnas (0 a 27)
@@ -128,7 +128,7 @@ Private Sub Form_Load()
     AxNom1.Caption = Acu21.Dacu1.TextMatrix(Acu21.Dacu1.Row, 0) + " " + Acu21.Dacu1.TextMatrix(Acu21.Dacu1.Row, 1)
 
     ' Construir nombre de archivo según el tipo
-    If (tipo = True) Then
+    If (Tipo = True) Then
         NoAch = "Auxiliar\Axna" + Trim(Acu21.Dacu1.TextMatrix(Acu21.Dacu1.Row, 0))
     Else
         NoAch = "Auxiliar\Axn" + LTrim(Acu21.Dacu1.TextMatrix(Acu21.Dacu1.Row, 0))
@@ -142,17 +142,18 @@ Private Sub Form_Load()
     FinAx2 = LOF(7) / Len(AxNom)
 
     ' Cargar datos en la grilla
-    Dim nombre As String
+    Dim Nombre As String
     Dim repetido As Boolean
 
     For r = 1 To FinAx2
         Get 7, r, AxNom
-        nombre = Left(AxNom.Narch, 8)
+        Nombre = Trim$(AxNom.Narch)
+        If UCase$(Right$(Nombre, 4)) = ".NOM" Then Nombre = Left$(Nombre, Len(Nombre) - 4)
 
         ' Verificar si el nombre ya fue agregado
         repetido = False
         On Error Resume Next
-        nombresAgregados.Item (nombre)
+        nombresAgregados.Item (Nombre)
         If Err.Number = 0 Then
             repetido = True
         End If
@@ -160,14 +161,14 @@ Private Sub Form_Load()
 
         ' Agregar si no está repetido
         If Not repetido Then
-            nombresAgregados.Add nombre, nombre
+            nombresAgregados.Add Nombre, Nombre
 
             ' Calcular ingresos (NUEVO: incluye los conceptos LIQ / ESP)
             InGresos = AxNom.Pnormal + AxNom.Pextra + AxNom.Pviaticos + AxNom.Pvaca + AxNom.Potras + AxNom.Pagui + AxNom.PPTU + AxNom.Pexenta
             InGresos = InGresos + AxNom.PCompensa + AxNom.PAntiguedad + AxNom.PIndemniza + AxNom.PSueldoVac + AxNom.PBono
 
             ' Construir entrada para la grilla (columnas 0 a 22, igual que antes)
-            entrada = Format(r, "###0") & Chr(9) & nombre & Chr(9) & _
+            entrada = Format(r, "###0") & Chr(9) & Nombre & Chr(9) & _
                       Format(AxNom.Pdias, "###,###,##0.00") & Chr(9) & _
                       Format(AxNom.Pnormal, "###,###,##0.00") & Chr(9) & _
                       Format(AxNom.Pextra, "###,###,##0.00") & Chr(9) & _
@@ -238,25 +239,22 @@ Sub cero_s()
 
 End Sub
 Sub sumas()
+    Dim sum As Currency
     Axn1.Row = Axn1.Rows - 1: Axn1.Col = 1: Axn1.CellFontBold = True
     Axn1.CellAlignment = 6: Axn1.TextMatrix((Axn1.Rows - 1), 1) = "Sumas  "
-    sum = 0
-    For r = 2 To ULT_COL       ' NUEVO: antes 2 To 22
+    For r = 2 To ULT_COL
        For i = 1 To Axn1.Rows - 2
-          If Trim$(Axn1.TextMatrix(i, r)) <> "" Then
-            sum = sum + Val(Axn1.TextMatrix(i, r))
-        End If
+          If IsNumeric(Axn1.TextMatrix(i, r)) Then sum = sum + CCur(Axn1.TextMatrix(i, r))
        Next i
        If sum <> 0 Then
             Axn1.Col = r
             Axn1.CellFontBold = True
             Axn1.TextMatrix((Axn1.Rows - 1), r) = Format(sum, "###,###,##0.00")
-            Else
+       Else
             Axn1.TextMatrix((Axn1.Rows - 1), r) = ""
        End If
        sum = 0
-   Next r
-
+    Next r
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)

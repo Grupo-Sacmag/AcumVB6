@@ -5,11 +5,11 @@ Begin VB.Form Acu21
    ClientHeight    =   5235
    ClientLeft      =   225
    ClientTop       =   870
-   ClientWidth     =   7065
+   ClientWidth     =   12345
    Icon            =   "Acu2.frx":0000
    LinkTopic       =   "Form1"
    ScaleHeight     =   5235
-   ScaleWidth      =   7065
+   ScaleWidth      =   12345
    StartUpPosition =   3  'Windows Default
    Begin VB.ComboBox ACUM 
       Height          =   315
@@ -404,6 +404,8 @@ Dim filasTemporal
 Dim Directorio1 As String
 Dim Directorio2 As String
 Dim PrefijoArch As String
+Dim Conc As ConceptosNom
+
 Sub EditREp()
    Dim CadAnt As String, CadActual As String
    CadAnt = Trim(Dacu1.TextMatrix(1, 1))
@@ -609,21 +611,21 @@ DirectorioNoDisponible:
 End Sub
 
 
-Private Function QuitarDiagonalRuta(ByVal Ruta As String) As String
+Private Function QuitarDiagonalRuta(ByVal ruta As String) As String
 
-    Ruta = Trim$(Ruta)
+    ruta = Trim$(ruta)
 
-    If Len(Ruta) > 3 Then
+    If Len(ruta) > 3 Then
 
-        Do While Right$(Ruta, 1) = "\"
+        Do While Right$(ruta, 1) = "\"
 
-            Ruta = Left$(Ruta, Len(Ruta) - 1)
+            ruta = Left$(ruta, Len(ruta) - 1)
 
         Loop
 
     End If
 
-    QuitarDiagonalRuta = Ruta
+    QuitarDiagonalRuta = ruta
 
 End Function
 
@@ -729,7 +731,7 @@ Sub encabezado()
 End Sub
 
 Private Sub acumTo_Click()
-  AxNom1.tipo = False
+  AxNom1.Tipo = False
   Dacu1.Rows = 1
   Form_Load
 End Sub
@@ -787,7 +789,7 @@ Private Sub ACUM_Click()
 
         Case "GENERAL"
         
-            AxNom1.tipo = False
+            AxNom1.Tipo = False
             Dacu1.Rows = 1
             Form_Load
                                   
@@ -906,22 +908,16 @@ Sub lectura()
 sigue5:
     End If
 
-    ' Procesar archivos del primer directorio (Directorio1)
-    miarchivo = Dir(Directorio1) ' Obtener el primer archivo del patrón
+    miarchivo = Dir("*.NOM")
     Do While miarchivo <> ""
-        Ftem = Ftem + 1
-        temporal.miarchivo = miarchivo
-        Put 10, Ftem, temporal
-        miarchivo = Dir() ' Obtener el siguiente archivo
-    Loop
-
-    ' Procesar archivos del segundo directorio (Directorio2)
-    miarchivo = Dir(Directorio2) ' Obtener el primer archivo del patrón
-    Do While miarchivo <> ""
-        Ftem = Ftem + 1
-        temporal.miarchivo = miarchivo
-        Put 10, Ftem, temporal
-        miarchivo = Dir() ' Obtener el siguiente archivo
+        If (UCase$(miarchivo) Like UCase$(Directorio1)) Or _
+           (UCase$(miarchivo) Like UCase$(Directorio2)) Or _
+           Not EsNominaNormal(miarchivo) Then
+            Ftem = Ftem + 1
+            temporal.miarchivo = miarchivo
+            Put 10, Ftem, temporal
+        End If
+        miarchivo = Dir()
     Loop
 
     Close 10
@@ -1045,23 +1041,9 @@ Sub abre()
 
 End Sub
 Sub reconocedornomina()
-   EXTRA = 1
-   If Left(UCase(Arch1), 3) = "ENE" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "FEB" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "MAR" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "ABR" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "MAY" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "JUN" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "JUL" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "AGO" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "SEP" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "OCT" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "NOV" Then EXTRA = 0
-   If Left(UCase(Arch1), 3) = "DIC" Then EXTRA = 0
-   If (NoIncLuye = 1) And (Left(UCase(Arch1), 4)) = "DIC2" Then
-            EXTRA = 3
-            
-   End If
+    EXTRA = 1
+    If EsNominaNormal(temporal.miarchivo) Then EXTRA = 0
+    If (NoIncLuye = 1) And EsNominaNormal(temporal.miarchivo) And Left(UCase(Arch1), 4) = "DIC2" Then EXTRA = 3
 End Sub
 
 Sub Acumula_todo()
@@ -1072,6 +1054,10 @@ Sub Acumula_todo()
    Close 5
    Close 7
    
+   On Error Resume Next
+   Kill "Auxiliar\AxN*.*"
+   On Error GoTo 0
+   
    Open "personal.dno" For Random As 13 Len = Len(personal)
    Open "AcuNom2.dno" For Random As 5 Len = Len(ArAcum)
    facum = LOF(5) / Len(ArAcum)
@@ -1081,121 +1067,9 @@ Sub Acumula_todo()
        Put 5, r, ArAcum
     Next r
    
-    For r = 1 To Ftem: Get 10, r, temporal
-    Rem On Error GoTo manejo1
-       temporal.miarchivo = Trim(temporal.miarchivo)
-       Dim TipoNominaActual As TipoNominaAcum
-       TipoNominaActual = ClasificarNominaAcum(temporal.miarchivo)
-       Open temporal.miarchivo For Random As 4 Len = Len(nomina)
-       fnom = LOF(4) / Len(nomina)
-       Arch1 = Trim(temporal.miarchivo)
-       Arch1 = Mid(Arch1, 1, Len(Arch1) - 4) + ".cmp"
-       Open Arch1 For Random As 6 Len = Len(Nom_Com)
-       FNomcom = LOF(6) / Len(Nom_Com)
-       Debug.Print Arch1
-       reconocedornomina
-       If EXTRA = 3 Then
-            Rem GoTo manejo1
-            Close 4, 6
-        Else
-         For i = 1 To fnom
-                Get 4, i, nomina
-                Get 6, i, Nom_Com
-                Get 13, i, personal
-                InGresos = nomina.sueldo + nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri + nomina.aguin + nomina.viaticos + nomina.pvac + nomina.otras + nomina.exentos + nomina.ptu
-                If InGresos <> 0 Then
-                    
-                    If EXTRA = 1 Then
-                        Rem If (Val(Mid(LTrim(personal.fab), 7, 4)) > 0) And (Val(Mid(LTrim(personal.fab), 7, 4)) <= empresa.ao) Then
-                            Nom_Com.CredNe = 0: Nom_Com.CreTot = 0
-                            Nom_Com.ImpTot = 0: Nom_Com.subapl = 0
-                            Nom_Com.subdio = 0: Nom_Com.subNap = 0
-                            Nom_Com.ImpTot = nomina.ispt
-                            Rem Put 6, I, Nom_Com
-                        Rem End If
-                        Rem If (Val(Mid(LTrim(personal.fal), 7, 4)) > 0) And (Val(Mid(LTrim(personal.fal), 7, 4)) = empresa.ao) Then
-                            Rem Nom_Com.CredNe = 0: Nom_Com.CreTot = 0
-                            Rem Nom_Com.ImpTot = 0: Nom_Com.subapl = 0
-                            Rem Nom_Com.subdio = 0: Nom_Com.subNap = 0
-                            Rem Nom_Com.ImpTot = nomina.ispt
-                            Rem Put 6, I, Nom_Com
-                        Rem End If
-                        Rem If UCase(Left(LTrim(Arch1), 3)) = "PTU" Then
-                            Rem Nom_Com.CredNe = 0: Nom_Com.CreTot = 0
-                            Rem Nom_Com.ImpTot = 0: Nom_Com.subapl = 0
-                            Rem Nom_Com.subdio = 0: Nom_Com.subNap = 0
-                            Rem Nom_Com.ImpTot = nomina.ispt
-                            Rem Put 6, I, Nom_Com
-                        Rem End If
-                    End If
-                    Get 5, i, ArAcum
-                    NoAux = "Auxiliar\AxN" + LTrim(Str(i))
-                    Open NoAux For Random As 7 Len = Len(AxNom)
-                    FiNax = LOF(7) / Len(AxNom)
-                    FiNax = FiNax + 1
-                    ArAcum.Pdias = ArAcum.Pdias + nomina.dias
-                    ArAcum.Pnormal = ArAcum.Pnormal + nomina.sueldo
-                    If RTrim(Left(temporal.miarchivo, 3)) = UCase("PRE") Then
-                    nomina.hs_tri = nomina.viaticos: nomina.viaticos = 0
-                    End If
-                    If TipoNominaActual = taLiquidacion Then
-                        ArAcum.PCompensa = ArAcum.PCompensa + nomina.hs_nor
-                        ArAcum.PAntiguedad = ArAcum.PAntiguedad + nomina.hs_dbl
-                        ArAcum.PIndemniza = ArAcum.PIndemniza + nomina.hs_tri
-                        ArAcum.PSueldoVac = ArAcum.PSueldoVac + nomina.viaticos
-                    ElseIf TipoNominaActual = taBono Then
-                        ArAcum.PBono = ArAcum.PBono + nomina.otras
-                    Else
-                        ArAcum.Pextra = ArAcum.Pextra + (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri)
-                        ArAcum.Pviaticos = ArAcum.Pviaticos + nomina.viaticos
-                    End If
-                    
-                    ArAcum.Pagui = ArAcum.Pagui + nomina.aguin
-                    ArAcum.Pvaca = ArAcum.Pvaca + nomina.pvac
-                    If TipoNominaActual <> taBono Then ArAcum.Potras = ArAcum.Potras + nomina.otras
-                    ArAcum.PPTU = ArAcum.PPTU + nomina.ptu
-                    ArAcum.Pexenta = ArAcum.Pexenta + nomina.exentos
-                    ArAcum.DImpto = ArAcum.DImpto + Nom_Com.ImpTot
-                    ArAcum.DSubioAp = ArAcum.DSubioAp + Nom_Com.subapl
-                    ArAcum.DCrApl = ArAcum.DCrApl + Nom_Com.CreTot
-                    ArAcum.DImpret = ArAcum.DImpret + nomina.ispt
-                    ArAcum.DCrPag = ArAcum.DCrPag + nomina.crdsal
-                    ArAcum.DSubNoap = ArAcum.DSubNoap + Nom_Com.subNap
-                    ArAcum.DImss = ArAcum.DImss + nomina.imss
-                    ArAcum.DPrestamos = ArAcum.DPrestamos + nomina.prestamos
-                    ArAcum.DTonacot = ArAcum.DTonacot + nomina.fonacot
-                    ArAcum.DTelefono = ArAcum.DTelefono + nomina.telefono
-                    ArAcum.DOtrasded = ArAcum.DOtrasded + nomina.otraded
-                    Put 5, i, ArAcum
-                    Auxliar
-                    Put 7, FiNax, AxNom
-                    
-                    Close 7
-                    AxPer.Pdias = nomina.dias
-                    AxPer.Pnormal = nomina.sueldo
-                    AxPer.Pextra = (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri)
-                    AxPer.Pviaticos = nomina.viaticos
-                    AxPer.Pvaca = nomina.pvac
-                    AxPer.Pagui = nomina.aguin
-                    AxPer.Potras = nomina.otras
-                    AxPer.PPTU = nomina.ptu
-                    AxPer.Pexenta = AxPer.Pexenta + nomina.exentos
-                    AxPer.DImpto = AxPer.DImpto + Nom_Com.ImpTot
-                    AxPer.DSubioAp = AxPer.DSubioAp + Nom_Com.subapl
-                    AxPer.DCrApl = AxPer.DCrApl + Nom_Com.CreTot
-                    AxPer.DImpret = AxPer.DImpret + nomina.ispt
-                    AxPer.DCrPag = AxPer.DCrPag + nomina.crdsal
-                    AxPer.DSubNoap = AxPer.DSubNoap + Nom_Com.subNap
-                    AxPer.DImss = AxPer.DImss + nomina.imss
-                    AxPer.DPrestamos = AxPer.DPrestamos + nomina.prestamos
-                    AxPer.DTonacot = AxPer.DTonacot + nomina.fonacot
-                    AxPer.DTelefono = AxPer.DTelefono + nomina.telefono
-                    AxPer.DOtrasded = AxPer.DOtrasded + nomina.otraded
-                    
-              End If
-          Next i
-          Close 4, 6
-        End If
+        For r = 1 To Ftem
+        Get 10, r, temporal
+        ProcesarArchivo "Auxiliar\AxN"
     Next r
     facum = LOF(5) / Len(ArAcum)
     Rem If NoIncLuye = 1 Then Stop
@@ -1204,8 +1078,8 @@ Sub Acumula_todo()
             InGresos = ArAcum.Pnormal + ArAcum.Pextra + ArAcum.Pviaticos + ArAcum.Pvaca + ArAcum.Potras + ArAcum.Pagui + ArAcum.PPTU + ArAcum.Pexenta
             InGresos = InGresos + ArAcum.PCompensa + ArAcum.PAntiguedad + ArAcum.PIndemniza + ArAcum.PSueldoVac + ArAcum.PBono
             If InGresos <> 0 Then
-            nombre = RTrim(personal.ape1) + " " + RTrim(personal.ape2) + " " + RTrim(personal.nom)
-            entrada = Format(r, "###0") & Chr(9) & nombre & Chr(9) & Format(ArAcum.Pdias, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pnormal, "###,###,##0.00") & Chr(9) & _
+            Nombre = RTrim(personal.ape1) + " " + RTrim(personal.ape2) + " " + RTrim(personal.nom)
+            entrada = Format(r, "###0") & Chr(9) & Nombre & Chr(9) & Format(ArAcum.Pdias, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pnormal, "###,###,##0.00") & Chr(9) & _
                       Format(ArAcum.Pextra, "###,###,##0.00") & Chr(9) & _
                       Format(ArAcum.Pviaticos, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pvaca, "###,###,##0.00") & Chr(9) & Format(ArAcum.Potras, "###,###,##0.00") & Chr(9) & _
                       Format(ArAcum.Pagui, "###,###,##0.00") & Chr(9) & _
@@ -1234,53 +1108,20 @@ Sub Acumula_todo()
 End Sub
 Sub Auxliar()
 
-    Dim TipoNominaActual As TipoNominaAcum
-
-    TipoNominaActual = ClasificarNominaAcum(temporal.miarchivo)
-
     AxNom.Narch = temporal.miarchivo
     AxNom.Pdias = nomina.dias
     AxNom.Pnormal = nomina.sueldo
-
-    ' Limpiar siempre los acumuladores
-    AxNom.Pextra = 0
-    AxNom.Pviaticos = 0
-    AxNom.Potras = 0
-
-    AxNom.PCompensa = 0
-    AxNom.PAntiguedad = 0
-    AxNom.PIndemniza = 0
-    AxNom.PSueldoVac = 0
-    AxNom.PBono = 0
-
-    Select Case TipoNominaActual
-
-        Case taLiquidacion
-
-            AxNom.PCompensa = nomina.hs_nor
-            AxNom.PAntiguedad = nomina.hs_dbl
-            AxNom.PIndemniza = nomina.hs_tri
-            AxNom.PSueldoVac = nomina.viaticos
-
-            ' Las otras percepciones siguen yendo a Otras
-            AxNom.Potras = nomina.otras
-
-        Case taBono
-
-            ' El bono ya no se duplica en Otras
-            AxNom.PBono = nomina.otras
-
-        Case Else
-
-            AxNom.Pextra = nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri
-            AxNom.Pviaticos = nomina.viaticos
-            AxNom.Potras = nomina.otras
-
-    End Select
-
-    AxNom.Pvaca = nomina.pvac
-    AxNom.Pagui = nomina.aguin
-    AxNom.PPTU = nomina.ptu
+    AxNom.Pextra = Conc.Pextra
+    AxNom.Pviaticos = Conc.Pviaticos
+    AxNom.Pvaca = Conc.Pvaca
+    AxNom.Potras = Conc.Potras
+    AxNom.Pagui = Conc.Pagui
+    AxNom.PPTU = Conc.PPTU
+    AxNom.PCompensa = Conc.PCompensa
+    AxNom.PAntiguedad = Conc.PAntiguedad
+    AxNom.PIndemniza = Conc.PIndemniza
+    AxNom.PSueldoVac = Conc.PSueldoVac
+    AxNom.PBono = Conc.PBono
     AxNom.Pexenta = nomina.exentos
 
     AxNom.DImpto = Nom_Com.ImpTot
@@ -1697,6 +1538,7 @@ Private Sub Form_Load()
             Close
             Exit Sub
     End If
+    
     Acumula_todo
     encabezado
     elecero
@@ -1749,11 +1591,11 @@ Sub ArchivoInformativo()
      Rem Campo 1 ********************************************
         A_o = Mid(personal.fal, 7, 4)
      If Val(A_o) = empresa.ao Then
-        mes = Mid(personal.fal, 4, 2)
+        Mes = Mid(personal.fal, 4, 2)
         Else
-        mes = "01"
+        Mes = "01"
      End If
-       DatoTe = mes + "|"
+       DatoTe = Mes + "|"
      Rem  campo 2 ********************************************
      Rem Se hace calculo cuando trabajo todo el año **********
      Rem Se hace calculo cuando trabajo en otro lado y lo solicita *******
@@ -1761,7 +1603,7 @@ Sub ArchivoInformativo()
      If (Val(LTrim(Mid(personal.fab, 7, 4))) <= 0) Then
         DatoTe = DatoTe + "12|"
         CALCULOANUAL = "1"
-        If mes <> "01" Then CALCULOANUAL = "2"
+        If Mes <> "01" Then CALCULOANUAL = "2"
         Else
         
         If Val(Mid(LTrim(personal.fab), 7, 4)) = empresa.ao Then
@@ -2305,176 +2147,58 @@ Private Sub InfoTring_Click()
 End Sub
 
 Private Sub mesFin_Click(Index As Integer)
-Dim acIngresos
-Dim nombre
-Dim acSueldo As Currency
-acSueldo = 0
-busquedaFinal = Index
-AxNom1.tipo = True
+    Dim Nombre As String
+    Dim entrada As String
+    Dim InGresos As Currency
 
+    busquedaFinal = Index
+    AxNom1.Tipo = True
 
-If (busquedaInicial <> "" And busquedaFinal >= busquedaInicial) Then
+    If Not IsNumeric(busquedaInicial) Or Val(busquedaFinal) < Val(busquedaInicial) Then
+        MsgBox "Error al hacer la busqueda"
+        busquedaInicial = ""
+        busquedaFinal = ""
+        Exit Sub
+    End If
+
     Dacu1.Rows = 1
-    'For i = 1 To 1
-        'For g = 0 To Dacu1.Cols - 1
-        'Dacu1.TextMatrix(i, g) = ""
-        'Next
-    'Next
-   'MsgBox ("Listo")
-   If Dir("Auxiliar\AxNa*.*", vbArchive) <> "" Then
-    Close 7
-    Kill ("Auxiliar\AxNa*.*")
-   End If
-   
-   
-   On Error GoTo manejo1
-   lectura
-   Open "AcuTemp" For Random As 10 Len = Len(temporal)
-   Ftem = LOF(10) / Len(temporal)
-   Close 5
-   Close 7
-   Open "personal.dno" For Random As 13 Len = Len(personal)
-   Open "AcuNom2.dno" For Random As 5 Len = Len(ArAcum)
-   facum = LOF(5) / Len(ArAcum)
-   
-    For r = 1 To FPer
-       ceros
-       Put 5, r, ArAcum
-   Next r
-    
-   For r = 1 To Ftem: Get 10, r, temporal
-    Rem On Error GoTo manejo1
-    extras = Left(Trim(temporal.miarchivo), 4)
-        For l = busquedaInicial To busquedaFinal
-            nomMesL = Left(Trim(mesInicial.Item(l).Caption), 4)
-            If extras = nomMesL Then
-                temporal.miarchivo = Trim(temporal.miarchivo)
-                Dim TipoNominaActual As TipoNominaAcum
-                TipoNominaActual = ClasificarNominaAcum(temporal.miarchivo)
-                Open temporal.miarchivo For Random As 4 Len = Len(nomina)
-                fnom = LOF(4) / Len(nomina)
-                Arch1 = Trim(temporal.miarchivo)
-                Arch1 = Mid(Arch1, 1, Len(Arch1) - 4) + ".cmp"
-                Open Arch1 For Random As 6 Len = Len(Nom_Com)
-                'MsgBox (temporal.miarchivo + "  " + Arch1)
-                FNomcom = LOF(6) / Len(Nom_Com)
-                Debug.Print Arch1
-                reconocedornomina
-                If EXTRA = 3 Then
-                    Rem GoTo manejo1
-                    Close 4, 6
-                Else
-                    For i = 1 To fnom
-                        Get 4, i, nomina
-                        Get 6, i, Nom_Com
-                        Get 13, i, personal
-                        InGresos = nomina.sueldo + nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri + nomina.aguin + nomina.viaticos + nomina.pvac + nomina.otras + nomina.exentos + nomina.ptu
-                        If InGresos <> 0 Then
-                    
-                            If EXTRA = 1 Then
-                                Rem If (Val(Mid(LTrim(personal.fab), 7, 4)) > 0) And (Val(Mid(LTrim(personal.fab), 7, 4)) <= empresa.ao) Then
-                                Nom_Com.CredNe = 0: Nom_Com.CreTot = 0
-                                Nom_Com.ImpTot = 0: Nom_Com.subapl = 0
-                                Nom_Com.subdio = 0: Nom_Com.subNap = 0
-                                Nom_Com.ImpTot = nomina.ispt
-                                Rem Put 6, I, Nom_Com
-                            Rem End If
-                            Rem If (Val(Mid(LTrim(personal.fal), 7, 4)) > 0) And (Val(Mid(LTrim(personal.fal), 7, 4)) = empresa.ao) Then
-                                Rem Nom_Com.CredNe = 0: Nom_Com.CreTot = 0
-                                Rem Nom_Com.ImpTot = 0: Nom_Com.subapl = 0
-                                Rem Nom_Com.subdio = 0: Nom_Com.subNap = 0
-                                Rem Nom_Com.ImpTot = nomina.ispt
-                                Rem Put 6, I, Nom_Com
-                            Rem End If
-                            Rem If UCase(Left(LTrim(Arch1), 3)) = "PTU" Then
-                                Rem Nom_Com.CredNe = 0: Nom_Com.CreTot = 0
-                                Rem Nom_Com.ImpTot = 0: Nom_Com.subapl = 0
-                                Rem Nom_Com.subdio = 0: Nom_Com.subNap = 0
-                                Rem Nom_Com.ImpTot = nomina.ispt
-                                Rem Put 6, I, Nom_Com
-                            Rem End If
-                            End If
-                            Get 5, i, ArAcum
-                            NoAux = "Auxiliar\AxNa" + LTrim(Str(i))
-                            Open NoAux For Random As 7 Len = Len(AxNom)
-                            FiNax = LOF(7) / Len(AxNom)
-                            FiNax = FiNax + 1
-                            ArAcum.Pdias = ArAcum.Pdias + nomina.dias
-                            ArAcum.Pnormal = ArAcum.Pnormal + nomina.sueldo
-                                                If RTrim(Left(temporal.miarchivo, 3)) = UCase("PRE") Then
-                        
-                            nomina.hs_tri = nomina.viaticos: nomina.viaticos = 0
-                            End If
-        
-                            If TipoNominaActual = taLiquidacion Then
-                                ArAcum.PCompensa = ArAcum.PCompensa + nomina.hs_nor
-                                ArAcum.PAntiguedad = ArAcum.PAntiguedad + nomina.hs_dbl
-                                ArAcum.PIndemniza = ArAcum.PIndemniza + nomina.hs_tri
-                                ArAcum.PSueldoVac = ArAcum.PSueldoVac + nomina.viaticos
-                            ElseIf TipoNominaActual = taBono Then
-                                ArAcum.PBono = ArAcum.PBono + nomina.otras
-                            Else
-                                ArAcum.Pextra = ArAcum.Pextra + (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri)
-                                ArAcum.Pviaticos = ArAcum.Pviaticos + nomina.viaticos
-                            End If
-                            ArAcum.Pagui = ArAcum.Pagui + nomina.aguin
-                            ArAcum.Pvaca = ArAcum.Pvaca + nomina.pvac
-                            If TipoNominaActual <> taBono Then ArAcum.Potras = ArAcum.Potras + nomina.otras
-                            ArAcum.PPTU = ArAcum.PPTU + nomina.ptu
-                            ArAcum.Pexenta = ArAcum.Pexenta + nomina.exentos
-                            ArAcum.DImpto = ArAcum.DImpto + Nom_Com.ImpTot
-                            ArAcum.DSubioAp = ArAcum.DSubioAp + Nom_Com.subapl
-                            ArAcum.DCrApl = ArAcum.DCrApl + Nom_Com.CreTot
-                            ArAcum.DImpret = ArAcum.DImpret + nomina.ispt
-                            ArAcum.DCrPag = ArAcum.DCrPag + nomina.crdsal
-                            ArAcum.DSubNoap = ArAcum.DSubNoap + Nom_Com.subNap
-                            ArAcum.DImss = ArAcum.DImss + nomina.imss
-                            ArAcum.DPrestamos = ArAcum.DPrestamos + nomina.prestamos
-                            ArAcum.DTonacot = ArAcum.DTonacot + nomina.fonacot
-                            ArAcum.DTelefono = ArAcum.DTelefono + nomina.telefono
-                            ArAcum.DOtrasded = ArAcum.DOtrasded + nomina.otraded
-                            Put 5, i, ArAcum
-                            Auxliar
-                            Put 7, FiNax, AxNom
-                    
-                            Close 7
-                            AxPer.Pdias = nomina.dias
-                            AxPer.Pnormal = nomina.sueldo
-                            AxPer.Pextra = (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri)
-                            AxPer.Pviaticos = nomina.viaticos
-                            AxPer.Pvaca = nomina.pvac
-                            AxPer.Pagui = nomina.aguin
-                            AxPer.Potras = nomina.otras
-                            AxPer.PPTU = nomina.ptu
-                            AxPer.Pexenta = AxPer.Pexenta + nomina.exentos
-                            AxPer.DImpto = AxPer.DImpto + Nom_Com.ImpTot
-                            AxPer.DSubioAp = AxPer.DSubioAp + Nom_Com.subapl
-                            AxPer.DCrApl = AxPer.DCrApl + Nom_Com.CreTot
-                            AxPer.DImpret = AxPer.DImpret + nomina.ispt
-                            AxPer.DCrPag = AxPer.DCrPag + nomina.crdsal
-                            AxPer.DSubNoap = AxPer.DSubNoap + Nom_Com.subNap
-                            AxPer.DImss = AxPer.DImss + nomina.imss
-                            AxPer.DPrestamos = AxPer.DPrestamos + nomina.prestamos
-                            AxPer.DTonacot = AxPer.DTonacot + nomina.fonacot
-                            AxPer.DTelefono = AxPer.DTelefono + nomina.telefono
-                            AxPer.DOtrasded = AxPer.DOtrasded + nomina.otraded
-                    
-                        End If
-                    Next i
-                    Close 4, 6
-                End If
-            End If
-        Next
-    Next r
-    facum = LOF(5) / Len(ArAcum)
 
-    For r = 1 To facum: Get 5, r, ArAcum
-            Get 13, r, personal
-            InGresos = ArAcum.Pnormal + ArAcum.Pextra + ArAcum.Pviaticos + ArAcum.Pvaca + ArAcum.Potras + ArAcum.Pagui + ArAcum.PPTU + ArAcum.Pexenta
-            InGresos = InGresos + ArAcum.PCompensa + ArAcum.PAntiguedad + ArAcum.PIndemniza + ArAcum.PSueldoVac + ArAcum.PBono
-            If InGresos <> 0 Then
-            nombre = RTrim(personal.ape1) + " " + RTrim(personal.ape2) + " " + RTrim(personal.nom)
-            entrada = Format(r, "###0") & Chr(9) & nombre & Chr(9) & Format(ArAcum.Pdias, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pnormal, "###,###,##0.00") & Chr(9) & _
+    If Dir("Auxiliar\AxNa*.*", vbArchive) <> "" Then
+        Close 7
+        Kill "Auxiliar\AxNa*.*"
+    End If
+
+    On Error GoTo manejo1
+
+    lectura
+    Open "AcuTemp" For Random As 10 Len = Len(temporal)
+    Ftem = LOF(10) / Len(temporal)
+    Close 5
+    Close 7
+    Open "personal.dno" For Random As 13 Len = Len(personal)
+    Open "AcuNom2.dno" For Random As 5 Len = Len(ArAcum)
+
+    For r = 1 To FPer
+        ceros
+        Put 5, r, ArAcum
+    Next r
+
+    For r = 1 To Ftem
+        Get 10, r, temporal
+        If IncluirEnRango(temporal.miarchivo, busquedaInicial, busquedaFinal) Then
+            ProcesarArchivo "Auxiliar\AxNa"
+        End If
+    Next r
+
+    facum = LOF(5) / Len(ArAcum)
+    For r = 1 To facum
+        Get 5, r, ArAcum
+        Get 13, r, personal
+        InGresos = ArAcum.Pnormal + ArAcum.Pextra + ArAcum.Pviaticos + ArAcum.Pvaca + ArAcum.Potras + ArAcum.Pagui + ArAcum.PPTU + ArAcum.Pexenta
+        InGresos = InGresos + ArAcum.PCompensa + ArAcum.PAntiguedad + ArAcum.PIndemniza + ArAcum.PSueldoVac + ArAcum.PBono
+        If InGresos <> 0 Then
+            Nombre = RTrim(personal.ape1) + " " + RTrim(personal.ape2) + " " + RTrim(personal.nom)
+            entrada = Format(r, "###0") & Chr(9) & Nombre & Chr(9) & Format(ArAcum.Pdias, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pnormal, "###,###,##0.00") & Chr(9) & _
                       Format(ArAcum.Pextra, "###,###,##0.00") & Chr(9) & _
                       Format(ArAcum.Pviaticos, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pvaca, "###,###,##0.00") & Chr(9) & Format(ArAcum.Potras, "###,###,##0.00") & Chr(9) & _
                       Format(ArAcum.Pagui, "###,###,##0.00") & Chr(9) & _
@@ -2489,34 +2213,20 @@ If (busquedaInicial <> "" And busquedaFinal >= busquedaInicial) Then
                       & Chr(9) & Format(ArAcum.PCompensa, "###,###,##0.00") & Chr(9) & Format(ArAcum.PAntiguedad, "###,###,##0.00") _
                       & Chr(9) & Format(ArAcum.PIndemniza, "###,###,##0.00") & Chr(9) & Format(ArAcum.PSueldoVac, "###,###,##0.00") _
                       & Chr(9) & Format(ArAcum.PBono, "###,###,##0.00")
-            
             Dacu1.AddItem entrada
-            
-            End If
+        End If
     Next r
-    
+
     Dacu1.Rows = Dacu1.Rows + 1
     sumando
-    Close 10
-    Close 13
-    Close 5
-    
-    Close: Exit Sub
-    
-    
+    Close
+    Exit Sub
+
 manejo1:
-   'MsgBox "Falla al Acumular " & Chr(13) & "revisa archivos  *.Nom", vbCritical
-    MsgBox (Err.Description & ": " & Err.Description)
-Close
-    
-
-Else
-    MsgBox ("Error al hacer la busqueda")
-End If
-
-busquedaInicial = ""
-busquedaFinal = ""
-
+    MsgBox Err.Number & ": " & Err.Description
+    Close
+    busquedaInicial = ""
+    busquedaFinal = ""
 End Sub
 
 Private Sub mesInicial_Click(Index As Integer)
@@ -2546,6 +2256,108 @@ Private Sub versionActual_Click()
 informacion.Show
 End Sub
 
+Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
+    Dim TipoNominaActual As TipoNominaAcum
+    Dim i As Long, fnom As Long, nAux As Long
+    Dim InGresos As Currency, NoAux As String
+    Dim dif As Currency
+
+    temporal.miarchivo = Trim$(temporal.miarchivo)
+    TipoNominaActual = ClasificarNominaAcum(temporal.miarchivo)
+
+    Open Trim$(temporal.miarchivo) For Random As 4 Len = Len(nomina)
+    fnom = LOF(4) \ Len(nomina)
+    Arch1 = Trim$(temporal.miarchivo)
+    Arch1 = Left$(Arch1, Len(Arch1) - 4) + ".cmp"
+    Open Arch1 For Random As 6 Len = Len(Nom_Com)
+
+    reconocedornomina
+    If EXTRA = 3 Then
+        Close 4, 6
+        Exit Sub
+    End If
+
+    For i = 1 To fnom
+        Get 4, i, nomina
+        Get 6, i, Nom_Com
+        Get 13, i, personal
+        InGresos = nomina.sueldo + nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri + nomina.aguin + nomina.viaticos + nomina.pvac + nomina.otras + nomina.exentos + nomina.ptu
+        If InGresos <> 0 Then
+            If EXTRA = 1 Then
+                Nom_Com.CredNe = 0: Nom_Com.CreTot = 0
+                Nom_Com.ImpTot = 0: Nom_Com.subapl = 0
+                Nom_Com.subdio = 0: Nom_Com.subNap = 0
+                Nom_Com.ImpTot = nomina.ispt
+            End If
+            Get 5, i, ArAcum
+            NoAux = PrefijoAux & LTrim$(Str$(i))
+            Open NoAux For Random As 7 Len = Len(AxNom)
+            nAux = LOF(7) \ Len(AxNom) + 1
+
+            ArAcum.Pdias = ArAcum.Pdias + nomina.dias
+            ArAcum.Pnormal = ArAcum.Pnormal + nomina.sueldo
+            CalcularConceptos TipoNominaActual, temporal.miarchivo, Conc
+
+            ' Cuadre solo para esquema nuevo: lo que no cayó en un concepto va a "Otras"
+            If TipoNominaActual >= taNuevaESP Then
+                dif = (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri + nomina.aguin + nomina.ptu + nomina.viaticos + nomina.pvac + nomina.otras) _
+                    - (Conc.Pextra + Conc.Pviaticos + Conc.Pvaca + Conc.Potras + Conc.Pagui + Conc.PPTU + _
+                       Conc.PCompensa + Conc.PAntiguedad + Conc.PIndemniza + Conc.PSueldoVac + Conc.PBono)
+                If dif <> 0 Then Conc.Potras = Conc.Potras + dif
+            End If
+
+            ArAcum.Pextra = ArAcum.Pextra + Conc.Pextra
+            ArAcum.Pviaticos = ArAcum.Pviaticos + Conc.Pviaticos
+            ArAcum.Pvaca = ArAcum.Pvaca + Conc.Pvaca
+            ArAcum.Potras = ArAcum.Potras + Conc.Potras
+            ArAcum.Pagui = ArAcum.Pagui + Conc.Pagui
+            ArAcum.PPTU = ArAcum.PPTU + Conc.PPTU
+            ArAcum.PCompensa = ArAcum.PCompensa + Conc.PCompensa
+            ArAcum.PAntiguedad = ArAcum.PAntiguedad + Conc.PAntiguedad
+            ArAcum.PIndemniza = ArAcum.PIndemniza + Conc.PIndemniza
+            ArAcum.PSueldoVac = ArAcum.PSueldoVac + Conc.PSueldoVac
+            ArAcum.PBono = ArAcum.PBono + Conc.PBono
+            ArAcum.Pexenta = ArAcum.Pexenta + nomina.exentos
+            ArAcum.DImpto = ArAcum.DImpto + Nom_Com.ImpTot
+            ArAcum.DSubioAp = ArAcum.DSubioAp + Nom_Com.subapl
+            ArAcum.DCrApl = ArAcum.DCrApl + Nom_Com.CreTot
+            ArAcum.DImpret = ArAcum.DImpret + nomina.ispt
+            ArAcum.DCrPag = ArAcum.DCrPag + nomina.crdsal
+            ArAcum.DSubNoap = ArAcum.DSubNoap + Nom_Com.subNap
+            ArAcum.DImss = ArAcum.DImss + nomina.imss
+            ArAcum.DPrestamos = ArAcum.DPrestamos + nomina.prestamos
+            ArAcum.DTonacot = ArAcum.DTonacot + nomina.fonacot
+            ArAcum.DTelefono = ArAcum.DTelefono + nomina.telefono
+            ArAcum.DOtrasded = ArAcum.DOtrasded + nomina.otraded
+            Put 5, i, ArAcum
+
+            Auxliar
+            Put 7, nAux, AxNom
+            Close 7
+        End If
+    Next i
+    Close 4, 6
+End Sub
+
+Private Function IncluirEnRango(ByVal Archivo As String, ByVal Ini As Long, ByVal Fin As Long) As Boolean
+    Dim l As Long, m As Integer
+    Dim tp As String, vr As Integer, mk As Integer
+
+    Archivo = Trim$(Archivo)
+    If EsNominaNormal(Archivo) Then
+        For l = Ini To Fin
+            If UCase$(Left$(Archivo, 4)) = UCase$(Left$(Trim$(mesInicial.Item(l).Caption), 4)) Then
+                IncluirEnRango = True: Exit Function
+            End If
+        Next l
+    Else
+        If LeerMarcaTipo(Archivo, tp, vr, mk) And mk >= 1 And mk <= 12 Then
+            m = mk                                  ' mes guardado en la marca
+        Else
+            m = Month(FileDateTime(Archivo))        ' sin marca: mes de modificación
+        End If
+        IncluirEnRango = (m >= (Ini + 1) \ 2 And m <= (Fin + 1) \ 2)
+    End If
+End Function
+
 ' comentario
-
-
