@@ -52,12 +52,39 @@ Public Tipo As Boolean
 Const NCOLS As Long = 28      ' total de columnas (0 a 27)
 Const ULT_COL As Long = 27    ' ultima columna con importes
 
+Private Function EntradaAxNomVisual(ByVal entradaOriginal As String) As String
+    ' Unicamente orden de columnas visuales; no cambia AxNom ni el .DNO.
+    ' Original: 0..9, 10..22, 23..27
+    ' Pantalla: 0..9, 23..27, 10..22
+    Dim original() As String
+    Dim ordenada(0 To 27) As String
+    Dim i As Long
+
+    original = Split(entradaOriginal, vbTab)
+    If UBound(original) <> 27 Then
+        Err.Raise vbObjectError + 2027, "EntradaAxNomVisual", _
+                  "La fila del detalle no tiene 28 columnas."
+    End If
+
+    For i = 0 To 9
+        ordenada(i) = original(i)
+    Next i
+    For i = 0 To 4
+        ordenada(10 + i) = original(23 + i)
+    Next i
+    For i = 10 To 22
+        ordenada(i + 5) = original(i)
+    Next i
+
+    EntradaAxNomVisual = Join(ordenada, vbTab)
+End Function
+
 Sub ReAper()
     Axn1.Cols = NCOLS         ' NUEVO
     Axn1.Row = 0
-    Axn1.Col = 0: Axn1.CellFontBold = True: Axn1.ColWidth(0) = 600: Axn1.CellAlignment = 3: Axn1.Text = "Núm."
+    Axn1.Col = 0: Axn1.CellFontBold = True: Axn1.ColWidth(0) = 600: Axn1.CellAlignment = 3: Axn1.Text = "Nï¿½m."
     Axn1.ColAlignment(0) = 4
-    Axn1.Col = 1: Axn1.CellFontBold = True: Axn1.ColWidth(1) = 3200: Axn1.CellAlignment = 3: Axn1.Text = "Nómbre."
+    Axn1.Col = 1: Axn1.CellFontBold = True: Axn1.ColWidth(1) = 3200: Axn1.CellAlignment = 3: Axn1.Text = "Nï¿½mbre."
     Axn1.Col = 2: Axn1.CellFontBold = True: Axn1.ColWidth(2) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Dias"
     Axn1.Col = 3: Axn1.CellFontBold = True: Axn1.ColWidth(3) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Sueldos"
     Axn1.Col = 4: Axn1.CellFontBold = True: Axn1.ColWidth(4) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Prem.Punt"
@@ -66,25 +93,25 @@ Sub ReAper()
     Axn1.Col = 7: Axn1.CellFontBold = True: Axn1.ColWidth(7) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Otras"
     Axn1.Col = 8: Axn1.CellFontBold = True: Axn1.ColWidth(8) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Aguinaldo"
     Axn1.Col = 9: Axn1.CellFontBold = True: Axn1.ColWidth(9) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "P.T.U."
-    Axn1.Col = 10: Axn1.CellFontBold = True: Axn1.ColWidth(10) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Exentos"
-    Axn1.Col = 11: Axn1.CellFontBold = True: Axn1.ColWidth(11) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Total"
-    Axn1.Col = 12: Axn1.CellFontBold = True: Axn1.ColWidth(12) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Impto."
-    Axn1.Col = 13: Axn1.CellFontBold = True: Axn1.ColWidth(13) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Subdio.Apl."
-    Axn1.Col = 14: Axn1.CellFontBold = True: Axn1.ColWidth(14) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Cr.Apl."
-    Axn1.Col = 15: Axn1.CellFontBold = True: Axn1.ColWidth(15) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Impto.Ret."
-    Axn1.Col = 16: Axn1.CellFontBold = True: Axn1.ColWidth(16) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Cr.Pag."
-    Axn1.Col = 17: Axn1.CellFontBold = True: Axn1.ColWidth(17) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Subdio.No apl."
-    Axn1.Col = 18: Axn1.CellFontBold = True: Axn1.ColWidth(18) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "IMSS"
-    Axn1.Col = 19: Axn1.CellFontBold = True: Axn1.ColWidth(19) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Prestamos"
-    Axn1.Col = 20: Axn1.CellFontBold = True: Axn1.ColWidth(20) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Pensión Ali"
-    Axn1.Col = 21: Axn1.CellFontBold = True: Axn1.ColWidth(21) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Fonacot"
-    Axn1.Col = 22: Axn1.CellFontBold = True: Axn1.ColWidth(22) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Infonavit"
+    Axn1.Col = 15: Axn1.CellFontBold = True: Axn1.ColWidth(15) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Exentos"
+    Axn1.Col = 16: Axn1.CellFontBold = True: Axn1.ColWidth(16) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Total"
+    Axn1.Col = 17: Axn1.CellFontBold = True: Axn1.ColWidth(17) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Impto."
+    Axn1.Col = 18: Axn1.CellFontBold = True: Axn1.ColWidth(18) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Subdio.Apl."
+    Axn1.Col = 19: Axn1.CellFontBold = True: Axn1.ColWidth(19) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Cr.Apl."
+    Axn1.Col = 20: Axn1.CellFontBold = True: Axn1.ColWidth(20) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Impto.Ret."
+    Axn1.Col = 21: Axn1.CellFontBold = True: Axn1.ColWidth(21) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Cr.Pag."
+    Axn1.Col = 22: Axn1.CellFontBold = True: Axn1.ColWidth(22) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Subdio.No apl."
+    Axn1.Col = 23: Axn1.CellFontBold = True: Axn1.ColWidth(23) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "IMSS"
+    Axn1.Col = 24: Axn1.CellFontBold = True: Axn1.ColWidth(24) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Prestamos"
+    Axn1.Col = 25: Axn1.CellFontBold = True: Axn1.ColWidth(25) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Pensiï¿½n Ali"
+    Axn1.Col = 26: Axn1.CellFontBold = True: Axn1.ColWidth(26) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Fonacot"
+    Axn1.Col = 27: Axn1.CellFontBold = True: Axn1.ColWidth(27) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Infonavit"
     ' ---- NUEVO: columnas LIQ y ESP ----
-    Axn1.Col = 23: Axn1.CellFontBold = True: Axn1.ColWidth(23) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "Compensaciones"
-    Axn1.Col = 24: Axn1.CellFontBold = True: Axn1.ColWidth(24) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "P. Antigüedad"
-    Axn1.Col = 25: Axn1.CellFontBold = True: Axn1.ColWidth(25) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "Indemnización"
-    Axn1.Col = 26: Axn1.CellFontBold = True: Axn1.ColWidth(26) = 1600: Axn1.CellAlignment = 3: Axn1.Text = "Sueldos Vacaciones"
-    Axn1.Col = 27: Axn1.CellFontBold = True: Axn1.ColWidth(27) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Bono"
+    Axn1.Col = 10: Axn1.CellFontBold = True: Axn1.ColWidth(10) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "Compensaciones"
+    Axn1.Col = 11: Axn1.CellFontBold = True: Axn1.ColWidth(11) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "P. Antigï¿½edad"
+    Axn1.Col = 12: Axn1.CellFontBold = True: Axn1.ColWidth(12) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "Indemnizaciï¿½n"
+    Axn1.Col = 13: Axn1.CellFontBold = True: Axn1.ColWidth(13) = 1600: Axn1.CellAlignment = 3: Axn1.Text = "Sueldos Vacaciones"
+    Axn1.Col = 14: Axn1.CellFontBold = True: Axn1.ColWidth(14) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Bono"
     Axn1.Rows = 1
 End Sub
 
@@ -116,7 +143,7 @@ Private Sub Form_Load()
     Axn1.Clear
     Axn1.Rows = 1
     
-    ' Reiniciar la colección de nombres para evitar duplicados
+    ' Reiniciar la colecciï¿½n de nombres para evitar duplicados
     Set nombresAgregados = Nothing
     Set nombresAgregados = New Collection
 
@@ -127,14 +154,14 @@ Private Sub Form_Load()
     ' Asignar nombre
     AxNom1.Caption = Acu21.Dacu1.TextMatrix(Acu21.Dacu1.Row, 0) + " " + Acu21.Dacu1.TextMatrix(Acu21.Dacu1.Row, 1)
 
-    ' Construir nombre de archivo según el tipo
+    ' Construir nombre de archivo segï¿½n el tipo
     If (Tipo = True) Then
         NoAch = "Auxiliar\Axna" + Trim(Acu21.Dacu1.TextMatrix(Acu21.Dacu1.Row, 0))
     Else
         NoAch = "Auxiliar\Axn" + LTrim(Acu21.Dacu1.TextMatrix(Acu21.Dacu1.Row, 0))
     End If
 
-    Debug.Print "Archivo leído: " & NoAch ' Para verificar que se está leyendo el archivo correcto
+    Debug.Print "Archivo leï¿½do: " & NoAch ' Para verificar que se estï¿½ leyendo el archivo correcto
 
     ' Cerrar y abrir archivo para lectura
     Close 7
@@ -159,13 +186,12 @@ Private Sub Form_Load()
         End If
         On Error GoTo 0
 
-        ' Agregar si no está repetido
+        ' Agregar si no estï¿½ repetido
         If Not repetido Then
             nombresAgregados.Add Nombre, Nombre
 
             ' Calcular ingresos (NUEVO: incluye los conceptos LIQ / ESP)
-            InGresos = AxNom.Pnormal + AxNom.Pextra + AxNom.Pviaticos + AxNom.Pvaca + AxNom.Potras + AxNom.Pagui + AxNom.PPTU + AxNom.Pexenta
-            InGresos = InGresos + AxNom.PCompensa + AxNom.PAntiguedad + AxNom.PIndemniza + AxNom.PSueldoVac + AxNom.PBono
+            InGresos = IngresosTotalesDetalle(AxNom)
 
             ' Construir entrada para la grilla (columnas 0 a 22, igual que antes)
             entrada = Format(r, "###0") & Chr(9) & Nombre & Chr(9) & _
@@ -191,8 +217,8 @@ Private Sub Form_Load()
                       Format(AxNom.DTonacot, "###,###,##0.00") & Chr(9) & _
                       Format(AxNom.DOtrasded, "###,###,##0.00")
 
-            ' NUEVO: columnas 23 a 27 (se arma en otra instrucción porque VB6
-            ' permite máximo 24 continuaciones de línea "_" por instrucción)
+            ' NUEVO: columnas 23 a 27 (se arma en otra instrucciï¿½n porque VB6
+            ' permite mï¿½ximo 24 continuaciones de lï¿½nea "_" por instrucciï¿½n)
             entrada = entrada & Chr(9) & _
                       Format(AxNom.PCompensa, "###,###,##0.00") & Chr(9) & _
                       Format(AxNom.PAntiguedad, "###,###,##0.00") & Chr(9) & _
@@ -201,7 +227,7 @@ Private Sub Form_Load()
                       Format(AxNom.PBono, "###,###,##0.00")
 
             ' Agregar la entrada a la grilla
-            Axn1.AddItem entrada
+            Axn1.AddItem EntradaAxNomVisual(CStr(entrada))
         End If
     Next r
 
@@ -262,4 +288,3 @@ Private Sub Form_Unload(Cancel As Integer)
 End Sub
 
 ' comentario
-

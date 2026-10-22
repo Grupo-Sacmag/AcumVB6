@@ -58,7 +58,7 @@ Begin VB.Form Acu21
             Caption         =   "&Alfabetico"
          End
          Begin VB.Menu ArOrNum 
-            Caption         =   "&Númerico"
+            Caption         =   "&Nï¿½merico"
          End
       End
       Begin VB.Menu sep2 
@@ -77,7 +77,7 @@ Begin VB.Form Acu21
          Caption         =   "-"
       End
       Begin VB.Menu ArcImp 
-         Caption         =   "&Impresión"
+         Caption         =   "&Impresiï¿½n"
       End
       Begin VB.Menu ArcSep3 
          Caption         =   "-"
@@ -87,7 +87,7 @@ Begin VB.Form Acu21
       End
    End
    Begin VB.Menu Edi 
-      Caption         =   "&Edición"
+      Caption         =   "&Ediciï¿½n"
       Begin VB.Menu EditDupl 
          Caption         =   "&Buscar Duplicados"
       End
@@ -384,7 +384,7 @@ Begin VB.Form Acu21
       End
    End
    Begin VB.Menu versionActual 
-      Caption         =   "Versión"
+      Caption         =   "Versiï¿½n"
    End
 End
 Attribute VB_Name = "Acu21"
@@ -432,8 +432,7 @@ Sub EditREp()
 End Sub
 Sub Adicionar()
 Dim AntValor As Currency, ActValor As Currency
-   For i = 2 To 31
-       If i < 23 Or i > 26 Then
+   For i = 2 To 27
          If IsNumeric(Dacu1.TextMatrix(r - 1, i)) Then
             AntValor = (Dacu1.TextMatrix(r - 1, i))
             Else
@@ -451,7 +450,6 @@ Dim AntValor As Currency, ActValor As Currency
                 Else
                 Dacu1.TextMatrix(r, i) = Format(ActValor, "###,###,##0.00")
          End If
-       End If
     Next i
  
    Dacu1.RemoveItem r - 1
@@ -510,8 +508,8 @@ ReintentarDirectorio:
     '==========================================================
     ' SI EL ARCHIVO ANTIGUO NO SE PUEDE LEER
     '
-    ' Esto también resuelve automáticamente el primer arranque
-    ' después de cambiar String * 64 por String * 260.
+    ' Esto tambiï¿½n resuelve automï¿½ticamente el primer arranque
+    ' despuï¿½s de cambiar String * 64 por String * 260.
     '==========================================================
     If ErrorLectura = True Then
 
@@ -561,9 +559,9 @@ ReintentarDirectorio:
 
 
     '==========================================================
-    ' VERIFICACIÓN FINAL
+    ' VERIFICACIï¿½N FINAL
     '
-    ' CurDir$ debe ser exactamente la ruta que leímos.
+    ' CurDir$ debe ser exactamente la ruta que leï¿½mos.
     '==========================================================
     If StrComp( _
             QuitarDiagonalRuta(CurDir$), _
@@ -591,7 +589,7 @@ DirectorioNoDisponible:
     On Error GoTo 0
 
 
-    MsgBox "El directorio guardado ya no está disponible." & _
+    MsgBox "El directorio guardado ya no estï¿½ disponible." & _
            vbCrLf & vbCrLf & _
            "Ruta guardada:" & vbCrLf & _
            RutaGuardada & _
@@ -611,21 +609,21 @@ DirectorioNoDisponible:
 End Sub
 
 
-Private Function QuitarDiagonalRuta(ByVal ruta As String) As String
+Private Function QuitarDiagonalRuta(ByVal Ruta As String) As String
 
-    ruta = Trim$(ruta)
+    Ruta = Trim$(Ruta)
 
-    If Len(ruta) > 3 Then
+    If Len(Ruta) > 3 Then
 
-        Do While Right$(ruta, 1) = "\"
+        Do While Right$(Ruta, 1) = "\"
 
-            ruta = Left$(ruta, Len(ruta) - 1)
+            Ruta = Left$(Ruta, Len(Ruta) - 1)
 
         Loop
 
     End If
 
-    QuitarDiagonalRuta = ruta
+    QuitarDiagonalRuta = Ruta
 
 End Function
 
@@ -642,61 +640,81 @@ End Sub
 
 Sub elecero()
    For r = 1 To Dacu1.Rows - 2
-       For i = 2 To 31
-         If i < 23 Or i > 26 Then      ' 23 a 26 son texto (Rfc, Imss, fechas)
+       For i = 2 To 27 ' Columnas numericas; RFC/IMSS/fechas ahora 28..31
             If Dacu1.TextMatrix(r, i) = "" Then Dacu1.TextMatrix(r, i) = 0
             If Dacu1.TextMatrix(r, i) = 0 Then
                Dacu1.TextMatrix(r, i) = ""
             End If
-         End If
        Next i
    Next r
    sumando
 End Sub
 Sub sumando()
-    Dacu1.Row = Dacu1.Rows - 1: Dacu1.Col = 1: Dacu1.CellFontBold = True
-    Dacu1.CellAlignment = 6: Dacu1.TextMatrix((Dacu1.Rows - 1), 1) = "Sumas  "
-    For r = 2 To 22
-       For i = 1 To Dacu1.Rows - 2
-          If Dacu1.TextMatrix(i, r) = "" Then
-             Dacu1.TextMatrix(i, r) = ""
-             Else
-             sum = sum + Dacu1.TextMatrix(i, r)
-          End If
-       Next i
-       If sum <> 0 Then
-            Dacu1.Col = r
-            Dacu1.CellFontBold = True
-            Dacu1.TextMatrix((Dacu1.Rows - 1), r) = Format(sum, "###,###,##0.00")
-            Else
-            Dacu1.TextMatrix((Dacu1.Rows - 1), r) = ""
-       End If
-       sum = 0
-   Next r
-       For r = 27 To 31
-       For i = 1 To Dacu1.Rows - 2
-          If Dacu1.TextMatrix(i, r) = "" Then
-             Dacu1.TextMatrix(i, r) = ""
-             Else
-             sum = sum + Dacu1.TextMatrix(i, r)
-          End If
-       Next i
-       If sum <> 0 Then
-            Dacu1.Col = r
-            Dacu1.CellFontBold = True
-            Dacu1.TextMatrix((Dacu1.Rows - 1), r) = Format(sum, "###,###,##0.00")
-            Else
-            Dacu1.TextMatrix((Dacu1.Rows - 1), r) = ""
-       End If
-       sum = 0
-   Next r
+    Dim fila As Long
+    Dim columna As Long
+    Dim totalCol As Currency
+    Dim totalFila As Long
+
+    If Dacu1.Rows < 2 Then Exit Sub
+    totalFila = Dacu1.Rows - 1
+    Dacu1.TextMatrix(totalFila, 1) = "Sumas  "
+    Dacu1.Row = totalFila
+    Dacu1.Col = 1
+    Dacu1.CellFontBold = True
+    Dacu1.CellAlignment = 6
+
+    ' Columnas numericas: Dias(2) hasta Infonavit(27).
+    ' RFC, IMSS y fechas quedan en 28 a 31 y NO se suman.
+    For columna = 2 To 27
+        totalCol = 0
+        For fila = 1 To totalFila - 1
+            If IsNumeric(Dacu1.TextMatrix(fila, columna)) Then
+                totalCol = totalCol + CCur(Dacu1.TextMatrix(fila, columna))
+            End If
+        Next fila
+
+        If totalCol <> 0 Then
+            Dacu1.TextMatrix(totalFila, columna) = Format$(totalCol, "###,###,##0.00")
+        Else
+            Dacu1.TextMatrix(totalFila, columna) = ""
+        End If
+        Dacu1.Col = columna
+        Dacu1.CellFontBold = True
+    Next columna
 End Sub
+Private Function EntradaAcu2Visual(ByVal entradaOriginal As String) As String
+    ' Solo cambia el orden en pantalla. NO modifica ArAcum ni archivos DNO.
+    ' Original: 0..9, 10..26, 27..31
+    ' Pantalla: 0..9, 27..31, 10..26
+    Dim original() As String
+    Dim ordenada(0 To 31) As String
+    Dim i As Long
+
+    original = Split(entradaOriginal, vbTab)
+    If UBound(original) <> 31 Then
+        Err.Raise vbObjectError + 2026, "EntradaAcu2Visual", _
+                  "La fila del acumulado no tiene 32 columnas."
+    End If
+
+    For i = 0 To 9
+        ordenada(i) = original(i)
+    Next i
+    For i = 0 To 4
+        ordenada(10 + i) = original(27 + i)
+    Next i
+    For i = 10 To 26
+        ordenada(i + 5) = original(i)
+    Next i
+
+    EntradaAcu2Visual = Join(ordenada, vbTab)
+End Function
+
 Sub encabezado()
 
     Dacu1.Row = 0
-    Dacu1.Col = 0: Dacu1.CellFontBold = True: Dacu1.ColWidth(0) = 600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Núm."
+    Dacu1.Col = 0: Dacu1.CellFontBold = True: Dacu1.ColWidth(0) = 600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Nï¿½m."
     Dacu1.ColAlignment(0) = 4
-    Dacu1.Col = 1: Dacu1.CellFontBold = True: Dacu1.ColWidth(1) = 3200: Dacu1.CellAlignment = 3: Dacu1.Text = "Nómbre."
+    Dacu1.Col = 1: Dacu1.CellFontBold = True: Dacu1.ColWidth(1) = 3200: Dacu1.CellAlignment = 3: Dacu1.Text = "Nï¿½mbre."
     Dacu1.Col = 2: Dacu1.CellFontBold = True: Dacu1.ColWidth(2) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Dias"
     Dacu1.Col = 3: Dacu1.CellFontBold = True: Dacu1.ColWidth(3) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Sueldos"
     Dacu1.Col = 4: Dacu1.CellFontBold = True: Dacu1.ColWidth(4) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Prem.Punt"
@@ -705,28 +723,28 @@ Sub encabezado()
     Dacu1.Col = 7: Dacu1.CellFontBold = True: Dacu1.ColWidth(7) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Otras"
     Dacu1.Col = 8: Dacu1.CellFontBold = True: Dacu1.ColWidth(8) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Aguinaldo"
     Dacu1.Col = 9: Dacu1.CellFontBold = True: Dacu1.ColWidth(9) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "P.T.U."
-    Dacu1.Col = 10: Dacu1.CellFontBold = True: Dacu1.ColWidth(10) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Exentos"
-    Dacu1.Col = 11: Dacu1.CellFontBold = True: Dacu1.ColWidth(11) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Total"
-    Dacu1.Col = 12: Dacu1.CellFontBold = True: Dacu1.ColWidth(12) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Impto."
-    Dacu1.Col = 13: Dacu1.CellFontBold = True: Dacu1.ColWidth(13) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Subdio.Apl."
-    Dacu1.Col = 14: Dacu1.CellFontBold = True: Dacu1.ColWidth(14) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Cr.Apl."
-    Dacu1.Col = 15: Dacu1.CellFontBold = True: Dacu1.ColWidth(15) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Impto.Ret."
-    Dacu1.Col = 16: Dacu1.CellFontBold = True: Dacu1.ColWidth(16) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Cr.Pag."
-    Dacu1.Col = 17: Dacu1.CellFontBold = True: Dacu1.ColWidth(17) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Subdio.No apl."
-    Dacu1.Col = 18: Dacu1.CellFontBold = True: Dacu1.ColWidth(18) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "IMSS"
-    Dacu1.Col = 19: Dacu1.CellFontBold = True: Dacu1.ColWidth(19) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Prestamos"
-    Dacu1.Col = 20: Dacu1.CellFontBold = True: Dacu1.ColWidth(20) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Pensión Ali"
-    Dacu1.Col = 21: Dacu1.CellFontBold = True: Dacu1.ColWidth(21) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fonacot"
-    Dacu1.Col = 22: Dacu1.CellFontBold = True: Dacu1.ColWidth(22) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Infonavit"
-    Dacu1.Col = 23: Dacu1.CellFontBold = True: Dacu1.ColWidth(23) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Rfc"
-    Dacu1.Col = 24: Dacu1.CellFontBold = True: Dacu1.ColWidth(24) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Imss"
-    Dacu1.Col = 25: Dacu1.CellFontBold = True: Dacu1.ColWidth(25) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Alta"
-    Dacu1.Col = 26: Dacu1.CellFontBold = True: Dacu1.ColWidth(26) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Baja"
-    Dacu1.Col = 27: Dacu1.CellFontBold = True: Dacu1.ColWidth(27) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "Compensaciones"
-    Dacu1.Col = 28: Dacu1.CellFontBold = True: Dacu1.ColWidth(28) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "P. Antigüedad"
-    Dacu1.Col = 29: Dacu1.CellFontBold = True: Dacu1.ColWidth(29) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "Indemnización"
-    Dacu1.Col = 30: Dacu1.CellFontBold = True: Dacu1.ColWidth(30) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Sueldos Vacaciones"
-    Dacu1.Col = 31: Dacu1.CellFontBold = True: Dacu1.ColWidth(31) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Bono"
+    Dacu1.Col = 15: Dacu1.CellFontBold = True: Dacu1.ColWidth(15) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Exentos"
+    Dacu1.Col = 16: Dacu1.CellFontBold = True: Dacu1.ColWidth(16) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Total"
+    Dacu1.Col = 17: Dacu1.CellFontBold = True: Dacu1.ColWidth(17) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Impto."
+    Dacu1.Col = 18: Dacu1.CellFontBold = True: Dacu1.ColWidth(18) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Subdio.Apl."
+    Dacu1.Col = 19: Dacu1.CellFontBold = True: Dacu1.ColWidth(19) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Cr.Apl."
+    Dacu1.Col = 20: Dacu1.CellFontBold = True: Dacu1.ColWidth(20) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Impto.Ret."
+    Dacu1.Col = 21: Dacu1.CellFontBold = True: Dacu1.ColWidth(21) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Cr.Pag."
+    Dacu1.Col = 22: Dacu1.CellFontBold = True: Dacu1.ColWidth(22) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Subdio.No apl."
+    Dacu1.Col = 23: Dacu1.CellFontBold = True: Dacu1.ColWidth(23) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "IMSS"
+    Dacu1.Col = 24: Dacu1.CellFontBold = True: Dacu1.ColWidth(24) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Prestamos"
+    Dacu1.Col = 25: Dacu1.CellFontBold = True: Dacu1.ColWidth(25) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Pensiï¿½n Ali"
+    Dacu1.Col = 26: Dacu1.CellFontBold = True: Dacu1.ColWidth(26) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fonacot"
+    Dacu1.Col = 27: Dacu1.CellFontBold = True: Dacu1.ColWidth(27) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Infonavit"
+    Dacu1.Col = 28: Dacu1.CellFontBold = True: Dacu1.ColWidth(28) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Rfc"
+    Dacu1.Col = 29: Dacu1.CellFontBold = True: Dacu1.ColWidth(29) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Imss"
+    Dacu1.Col = 30: Dacu1.CellFontBold = True: Dacu1.ColWidth(30) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Alta"
+    Dacu1.Col = 31: Dacu1.CellFontBold = True: Dacu1.ColWidth(31) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Baja"
+    Dacu1.Col = 10: Dacu1.CellFontBold = True: Dacu1.ColWidth(10) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "Compensaciones"
+    Dacu1.Col = 11: Dacu1.CellFontBold = True: Dacu1.ColWidth(11) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "P. Antigï¿½edad"
+    Dacu1.Col = 12: Dacu1.CellFontBold = True: Dacu1.ColWidth(12) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "Indemnizaciï¿½n"
+    Dacu1.Col = 13: Dacu1.CellFontBold = True: Dacu1.ColWidth(13) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Sueldos Vacaciones"
+    Dacu1.Col = 14: Dacu1.CellFontBold = True: Dacu1.ColWidth(14) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Bono"
 
 End Sub
 
@@ -781,9 +799,9 @@ Private Sub ACUM_Click()
     
     'Si es diferente a la opcion predeterminada, empieza a rellenar Directorio1 y Directorio2 con
     Else
-        Respuesta = MsgBox(ACUM.Text + " ¿Estás seguro que quieres esta opción?", vbYesNo + vbQuestion, "Confirmación")
+        Respuesta = MsgBox(ACUM.Text + " ï¿½Estï¿½s seguro que quieres esta opciï¿½n?", vbYesNo + vbQuestion, "Confirmaciï¿½n")
     
-        If Respuesta = vbNo Then Exit Sub ' Si el usuario cancela, salir de la función
+        If Respuesta = vbNo Then Exit Sub ' Si el usuario cancela, salir de la funciï¿½n
 
     Select Case ACUM.Text
 
@@ -998,7 +1016,7 @@ Sub abre()
     Else
 
         ' Hay archivos NOM, por lo tanto el directorio
-        ' sigue siendo válido para la búsqueda de nóminas.
+        ' sigue siendo vï¿½lido para la bï¿½squeda de nï¿½minas.
         Femp = 1
 
     End If
@@ -1047,7 +1065,9 @@ Sub reconocedornomina()
 End Sub
 
 Sub Acumula_todo()
-'On Error GoTo manejo1
+   Dim fVaciar As Integer
+   Dim nError As Long, dError As String
+   On Error GoTo manejo1
    lectura
    Open "AcuTemp" For Random As 10 Len = Len(temporal)
    Ftem = LOF(10) / Len(temporal)
@@ -1059,6 +1079,11 @@ Sub Acumula_todo()
    On Error GoTo 0
    
    Open "personal.dno" For Random As 13 Len = Len(personal)
+   ' AcuNom2 es un resultado REGENERABLE. Truncar antes de escribir
+   ' porque se agrego un campo al FINAL del Type Nacu.
+   fVaciar = FreeFile
+   Open "AcuNom2.dno" For Output As #fVaciar
+   Close #fVaciar
    Open "AcuNom2.dno" For Random As 5 Len = Len(ArAcum)
    facum = LOF(5) / Len(ArAcum)
       
@@ -1075,8 +1100,7 @@ Sub Acumula_todo()
     Rem If NoIncLuye = 1 Then Stop
     For r = 1 To facum: Get 5, r, ArAcum
             Get 13, r, personal
-            InGresos = ArAcum.Pnormal + ArAcum.Pextra + ArAcum.Pviaticos + ArAcum.Pvaca + ArAcum.Potras + ArAcum.Pagui + ArAcum.PPTU + ArAcum.Pexenta
-            InGresos = InGresos + ArAcum.PCompensa + ArAcum.PAntiguedad + ArAcum.PIndemniza + ArAcum.PSueldoVac + ArAcum.PBono
+            InGresos = IngresosTotalesAcum(ArAcum)
             If InGresos <> 0 Then
             Nombre = RTrim(personal.ape1) + " " + RTrim(personal.ape2) + " " + RTrim(personal.nom)
             entrada = Format(r, "###0") & Chr(9) & Nombre & Chr(9) & Format(ArAcum.Pdias, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pnormal, "###,###,##0.00") & Chr(9) & _
@@ -1096,15 +1120,18 @@ Sub Acumula_todo()
                       & Chr(9) & Format(ArAcum.PBono, "###,###,##0.00")
                       
                       
-            Dacu1.AddItem entrada
+            Dacu1.AddItem EntradaAcu2Visual(CStr(entrada))
             End If
     Next r
     Dacu1.Rows = Dacu1.Rows + 1
     Close: Exit Sub
-'manejo1:
-   'MsgBox "Falla al Acumular " & Chr(13) & "revisa archivos  *.Nom", vbCritical
- '   MsgBox (Err.Number & " " & Err.Description)
- 'Close
+manejo1:
+   nError = Err.Number: dError = Err.Description
+   On Error Resume Next
+   Close
+   On Error GoTo 0
+   MsgBox "No fue posible completar el acumulado." & vbCrLf & _
+          "Error " & CStr(nError) & ": " & dError, vbCritical, "Acumulados"
 End Sub
 Sub Auxliar()
 
@@ -1151,6 +1178,7 @@ Sub ceros()
     ArAcum.Pagui = 0
     ArAcum.PPTU = 0
     ArAcum.Pexenta = 0
+    ArAcum.PexentaIncluida = 0
 
     ArAcum.PCompensa = 0
     ArAcum.PAntiguedad = 0
@@ -1210,13 +1238,13 @@ Private Sub ArcImp_Click()
             Select Case c
                  Case 0
                   Printer.CurrentX = 1200
-                  Printer.Print "Número ";
+                  Printer.Print "Nï¿½mero ";
                   Printer.Print Format(Dacu1.TextMatrix(r, c), "####0")
-                  Case 1, 23, 24
+                  Case 1, 28, 29
                   Printer.CurrentX = 1200
                   Printer.Print Dacu1.TextMatrix(0, c);
                   Printer.Print (" " + RTrim(Dacu1.TextMatrix(r, c)))
-                  Case 2 To 22, 27 To 31
+                  Case 2 To 27
                   If Dacu1.TextMatrix(r, c) <> "" Then
                       Printer.CurrentX = 2400
                       Printer.Print Dacu1.TextMatrix(0, c);
@@ -1289,8 +1317,8 @@ End Sub
 
 Private Sub Dacu1_KeyDown(KeyCode As Integer, Shift As Integer)
       If vbKeyF2 Then
-        If Dacu1.Col = 23 Then
-             Text1.Text = RTrim(Dacu1.TextMatrix(Dacu1.Row, 23))
+        If Dacu1.Col = 28 Then
+             Text1.Text = RTrim(Dacu1.TextMatrix(Dacu1.Row, 28))
              Text1.SetFocus
         End If
       End If
@@ -1322,12 +1350,12 @@ Private Sub EdCop_Click()
 
     For i = Dacu1.Row To Dacu1.RowSel
         For f = 0 To Dacu1.ColSel
-            Temporal1 = Temporal1 & CStr(Dacu1.TextMatrix(i, f)) ' Convertir explícitamente a cadena
+            Temporal1 = Temporal1 & CStr(Dacu1.TextMatrix(i, f)) ' Convertir explï¿½citamente a cadena
             If f < Dacu1.ColSel Then
                 Temporal1 = Temporal1 & Chr(9) ' Separador de columnas (Tab)
             End If
         Next f
-        Temporal1 = Temporal1 & Chr(13) & Chr(10) ' Nueva línea
+        Temporal1 = Temporal1 & Chr(13) & Chr(10) ' Nueva lï¿½nea
     Next i
 
     Clipboard.SetText Temporal1
@@ -1348,7 +1376,7 @@ Private Sub EditPer_Click()
    DatosConta.Show 1
    Dacu1.TextMatrix(Dacu1.Row, 1) = RTrim(personal.ape1) + " " + RTrim(personal.ape2) _
                                    + " " + RTrim(personal.nom)
-   Dacu1.TextMatrix(Dacu1.Row, 23) = personal.rfc
+   Dacu1.TextMatrix(Dacu1.Row, 28) = personal.rfc
    Close 2
 End Sub
 
@@ -1363,7 +1391,7 @@ Private Sub Form_Load()
     Close 1: Open "AcuTemp" For Random As 1 Len = Len(temporal)
     mlen = LOF(1) / Len(temporal)
     
-    ' Ejecutar la lógica correspondiente a "ANUAL"
+    ' Ejecutar la lï¿½gica correspondiente a "ANUAL"
     ' Agregar opciones al ComboBox ACUM
         ACUM.Text = "Selecciona una opcion"
         ACUM.AddItem "GENERAL"
@@ -1597,7 +1625,7 @@ Sub ArchivoInformativo()
      End If
        DatoTe = Mes + "|"
      Rem  campo 2 ********************************************
-     Rem Se hace calculo cuando trabajo todo el año **********
+     Rem Se hace calculo cuando trabajo todo el aï¿½o **********
      Rem Se hace calculo cuando trabajo en otro lado y lo solicita *******
      
      If (Val(LTrim(Mid(personal.fab, 7, 4))) <= 0) Then
@@ -2150,6 +2178,7 @@ Private Sub mesFin_Click(Index As Integer)
     Dim Nombre As String
     Dim entrada As String
     Dim InGresos As Currency
+    Dim fVaciar As Integer
 
     busquedaFinal = Index
     AxNom1.Tipo = True
@@ -2176,6 +2205,10 @@ Private Sub mesFin_Click(Index As Integer)
     Close 5
     Close 7
     Open "personal.dno" For Random As 13 Len = Len(personal)
+    ' Rehacer el archivo temporal completo tras ampliar Type Nacu.
+    fVaciar = FreeFile
+    Open "AcuNom2.dno" For Output As #fVaciar
+    Close #fVaciar
     Open "AcuNom2.dno" For Random As 5 Len = Len(ArAcum)
 
     For r = 1 To FPer
@@ -2194,8 +2227,7 @@ Private Sub mesFin_Click(Index As Integer)
     For r = 1 To facum
         Get 5, r, ArAcum
         Get 13, r, personal
-        InGresos = ArAcum.Pnormal + ArAcum.Pextra + ArAcum.Pviaticos + ArAcum.Pvaca + ArAcum.Potras + ArAcum.Pagui + ArAcum.PPTU + ArAcum.Pexenta
-        InGresos = InGresos + ArAcum.PCompensa + ArAcum.PAntiguedad + ArAcum.PIndemniza + ArAcum.PSueldoVac + ArAcum.PBono
+        InGresos = IngresosTotalesAcum(ArAcum)
         If InGresos <> 0 Then
             Nombre = RTrim(personal.ape1) + " " + RTrim(personal.ape2) + " " + RTrim(personal.nom)
             entrada = Format(r, "###0") & Chr(9) & Nombre & Chr(9) & Format(ArAcum.Pdias, "###,###,##0.00") & Chr(9) & Format(ArAcum.Pnormal, "###,###,##0.00") & Chr(9) & _
@@ -2213,7 +2245,7 @@ Private Sub mesFin_Click(Index As Integer)
                       & Chr(9) & Format(ArAcum.PCompensa, "###,###,##0.00") & Chr(9) & Format(ArAcum.PAntiguedad, "###,###,##0.00") _
                       & Chr(9) & Format(ArAcum.PIndemniza, "###,###,##0.00") & Chr(9) & Format(ArAcum.PSueldoVac, "###,###,##0.00") _
                       & Chr(9) & Format(ArAcum.PBono, "###,###,##0.00")
-            Dacu1.AddItem entrada
+            Dacu1.AddItem EntradaAcu2Visual(CStr(entrada))
         End If
     Next r
 
@@ -2228,7 +2260,6 @@ manejo1:
     busquedaInicial = ""
     busquedaFinal = ""
 End Sub
-
 Private Sub mesInicial_Click(Index As Integer)
     busquedaInicial = Index
 End Sub
@@ -2240,7 +2271,7 @@ Private Sub Text1_KeyPress(KeyAscii As Integer)
         Numpersona = Dacu1.TextMatrix(Dacu1.Row, 0)
         Get 3, Numpersona, personal
         Text1.Text = UCase(Text1.Text)
-        Dacu1.TextMatrix(Dacu1.Row, 23) = Text1.Text
+        Dacu1.TextMatrix(Dacu1.Row, 28) = Text1.Text
         personal.rfc = Text1.Text
         Put 3, Numpersona, personal
         Close 3
@@ -2259,53 +2290,97 @@ End Sub
 Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
     Dim TipoNominaActual As TipoNominaAcum
     Dim i As Long, fnom As Long, nAux As Long
-    Dim InGresos As Currency, NoAux As String
-    Dim dif As Currency
+    Dim totalCmp As Long, totalPersonal As Long
+    Dim brutoNom As Currency, brutoMapeado As Currency
+    Dim dif As Currency, exentoIncluido As Currency
+    Dim NoAux As String, nombreNom As String
+    Dim errorNumero As Long, errorDescripcion As String
+    Dim hayDatos As Boolean
 
-    temporal.miarchivo = Trim$(temporal.miarchivo)
-    TipoNominaActual = ClasificarNominaAcum(temporal.miarchivo)
+    On Error GoTo ErrorProcesar
+    nombreNom = Trim$(temporal.miarchivo)
+    TipoNominaActual = ClasificarNominaAcum(nombreNom)
 
-    Open Trim$(temporal.miarchivo) For Random As 4 Len = Len(nomina)
+    Open nombreNom For Random As #4 Len = Len(nomina)
+    If (LOF(4) Mod Len(nomina)) <> 0 Then
+        Err.Raise vbObjectError + 6203, "ProcesarArchivo", "Archivo NOM incompleto: " & nombreNom
+    End If
     fnom = LOF(4) \ Len(nomina)
-    Arch1 = Trim$(temporal.miarchivo)
-    Arch1 = Left$(Arch1, Len(Arch1) - 4) + ".cmp"
-    Open Arch1 For Random As 6 Len = Len(Nom_Com)
+
+    Arch1 = Left$(nombreNom, Len(nombreNom) - 4) & ".cmp"
+    If Len(Dir$(Arch1)) = 0 Then
+        Err.Raise vbObjectError + 6204, "ProcesarArchivo", "Falta complemento: " & Arch1
+    End If
+    Open Arch1 For Random As #6 Len = Len(Nom_Com)
+    totalCmp = LOF(6) \ Len(Nom_Com)
+    If totalCmp < fnom Then
+        Err.Raise vbObjectError + 6205, "ProcesarArchivo", _
+            "El .cmp tiene menos registros que el .NOM: " & nombreNom
+    End If
 
     reconocedornomina
     If EXTRA = 3 Then
-        Close 4, 6
+        Close #4, #6
         Exit Sub
     End If
 
+    totalPersonal = LOF(13) \ Len(personal)
+    If fnom > totalPersonal Then
+        Err.Raise vbObjectError + 6206, "ProcesarArchivo", _
+            "El .NOM tiene mas registros que personal.dno: " & nombreNom
+    End If
+
     For i = 1 To fnom
-        Get 4, i, nomina
-        Get 6, i, Nom_Com
-        Get 13, i, personal
-        InGresos = nomina.sueldo + nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri + nomina.aguin + nomina.viaticos + nomina.pvac + nomina.otras + nomina.exentos + nomina.ptu
-        If InGresos <> 0 Then
+        Get #4, i, nomina
+        Get #6, i, Nom_Com
+        Get #13, i, personal
+
+        ' La marca 20261010 NO es ingreso ni identifica un empleado pagado.
+        brutoNom = nomina.sueldo + nomina.hs_nor + nomina.hs_dbl + _
+                   nomina.hs_tri + nomina.aguin + nomina.ptu + _
+                   nomina.viaticos + nomina.pvac + nomina.otras
+        hayDatos = (brutoNom <> 0 Or nomina.exentos <> 0)
+        If EsSeparacion2026Acum(TipoNominaActual) Then
+            brutoNom = brutoNom + nomina.hsnor
+            If nomina.hsnor <> 0 Then hayDatos = True
+        End If
+
+        If hayDatos Then
             If EXTRA = 1 Then
                 Nom_Com.CredNe = 0: Nom_Com.CreTot = 0
-                Nom_Com.ImpTot = 0: Nom_Com.subapl = 0
-                Nom_Com.subdio = 0: Nom_Com.subNap = 0
                 Nom_Com.ImpTot = nomina.ispt
+                Nom_Com.subapl = 0: Nom_Com.subdio = 0: Nom_Com.subNap = 0
             End If
-            Get 5, i, ArAcum
-            NoAux = PrefijoAux & LTrim$(Str$(i))
-            Open NoAux For Random As 7 Len = Len(AxNom)
-            nAux = LOF(7) \ Len(AxNom) + 1
 
+            CalcularConceptos TipoNominaActual, nombreNom, Conc
+            brutoMapeado = Conc.Pextra + Conc.Pviaticos + Conc.Pvaca + _
+                          Conc.Potras + Conc.Pagui + Conc.PPTU + Conc.PCompensa + _
+                          Conc.PAntiguedad + Conc.PIndemniza + Conc.PSueldoVac + Conc.PBono
+            dif = brutoNom - nomina.sueldo - brutoMapeado
+
+            If EsSeparacion2026Acum(TipoNominaActual) Then
+                ' En el esquema nuevo NO esconder diferencias en Otras.
+                If dif <> 0 Then
+                    Err.Raise vbObjectError + 6207, "ProcesarArchivo", _
+                       "Conceptos sin clasificar en " & nombreNom & _
+                       ", empleado " & CStr(i) & ", diferencia " & Format$(dif, "0.00")
+                End If
+                If nomina.exentos < 0 Or nomina.exentos > brutoNom Then
+                    Err.Raise vbObjectError + 6208, "ProcesarArchivo", _
+                       "Exento invalido en " & nombreNom & ", empleado " & CStr(i)
+                End If
+                exentoIncluido = nomina.exentos
+            Else
+                ' El esquema historico conserva su regla anterior de cuadre.
+                If TipoNominaActual >= taNuevaESP Then
+                    If dif <> 0 Then Conc.Potras = Conc.Potras + dif
+                End If
+                exentoIncluido = 0
+            End If
+
+            Get #5, i, ArAcum
             ArAcum.Pdias = ArAcum.Pdias + nomina.dias
             ArAcum.Pnormal = ArAcum.Pnormal + nomina.sueldo
-            CalcularConceptos TipoNominaActual, temporal.miarchivo, Conc
-
-            ' Cuadre solo para esquema nuevo: lo que no cayó en un concepto va a "Otras"
-            If TipoNominaActual >= taNuevaESP Then
-                dif = (nomina.hs_nor + nomina.hs_dbl + nomina.hs_tri + nomina.aguin + nomina.ptu + nomina.viaticos + nomina.pvac + nomina.otras) _
-                    - (Conc.Pextra + Conc.Pviaticos + Conc.Pvaca + Conc.Potras + Conc.Pagui + Conc.PPTU + _
-                       Conc.PCompensa + Conc.PAntiguedad + Conc.PIndemniza + Conc.PSueldoVac + Conc.PBono)
-                If dif <> 0 Then Conc.Potras = Conc.Potras + dif
-            End If
-
             ArAcum.Pextra = ArAcum.Pextra + Conc.Pextra
             ArAcum.Pviaticos = ArAcum.Pviaticos + Conc.Pviaticos
             ArAcum.Pvaca = ArAcum.Pvaca + Conc.Pvaca
@@ -2318,6 +2393,7 @@ Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
             ArAcum.PSueldoVac = ArAcum.PSueldoVac + Conc.PSueldoVac
             ArAcum.PBono = ArAcum.PBono + Conc.PBono
             ArAcum.Pexenta = ArAcum.Pexenta + nomina.exentos
+            ArAcum.PexentaIncluida = ArAcum.PexentaIncluida + exentoIncluido
             ArAcum.DImpto = ArAcum.DImpto + Nom_Com.ImpTot
             ArAcum.DSubioAp = ArAcum.DSubioAp + Nom_Com.subapl
             ArAcum.DCrApl = ArAcum.DCrApl + Nom_Com.CreTot
@@ -2329,35 +2405,54 @@ Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
             ArAcum.DTonacot = ArAcum.DTonacot + nomina.fonacot
             ArAcum.DTelefono = ArAcum.DTelefono + nomina.telefono
             ArAcum.DOtrasded = ArAcum.DOtrasded + nomina.otraded
-            Put 5, i, ArAcum
+            Put #5, i, ArAcum
 
+            NoAux = PrefijoAux & LTrim$(Str$(i))
+            Open NoAux For Random As #7 Len = Len(AxNom)
+            nAux = (LOF(7) \ Len(AxNom)) + 1
             Auxliar
-            Put 7, nAux, AxNom
-            Close 7
+            AxNom.PexentaIncluida = exentoIncluido
+            Put #7, nAux, AxNom
+            Close #7
         End If
     Next i
-    Close 4, 6
-End Sub
 
-Private Function IncluirEnRango(ByVal Archivo As String, ByVal Ini As Long, ByVal Fin As Long) As Boolean
+    Close #4, #6
+    Exit Sub
+ErrorProcesar:
+    errorNumero = Err.Number: errorDescripcion = Err.Description
+    On Error Resume Next
+    Close #4, #6, #7
+    On Error GoTo 0
+    Err.Raise errorNumero, "ProcesarArchivo", errorDescripcion
+End Sub
+Private Function IncluirEnRango(ByVal Archivo As String, ByVal Ini As Long, ByVal fin As Long) As Boolean
     Dim l As Long, m As Integer
     Dim tp As String, vr As Integer, mk As Integer
 
     Archivo = Trim$(Archivo)
     If EsNominaNormal(Archivo) Then
-        For l = Ini To Fin
-            If UCase$(Left$(Archivo, 4)) = UCase$(Left$(Trim$(mesInicial.Item(l).Caption), 4)) Then
-                IncluirEnRango = True: Exit Function
+        For l = Ini To fin
+            If UCase$(Left$(NombreBaseNomAcum(Archivo), 4)) = _
+               UCase$(Left$(Trim$(mesInicial.Item(l).Caption), 4)) Then
+                IncluirEnRango = True
+                Exit Function
             End If
         Next l
     Else
-        If LeerMarcaTipo(Archivo, tp, vr, mk) And mk >= 1 And mk <= 12 Then
-            m = mk                                  ' mes guardado en la marca
+        ' Para nuevas separaciones hay fecha REAL guardada en .FEC.
+        If MesFichaAcumulado(Archivo, m) Then
+            ' Mes obtenido directamente del archivo de fecha.
+        ElseIf ArchivoMarcaSeparacion2026(Archivo) Then
+            Err.Raise vbObjectError + 6209, "IncluirEnRango", _
+                "La nomina especial nueva no tiene ficha .FEC: " & Archivo
+        ElseIf LeerMarcaTipo(Archivo, tp, vr, mk) And mk >= 1 And mk <= 12 Then
+            m = mk
         Else
-            m = Month(FileDateTime(Archivo))        ' sin marca: mes de modificación
+            ' Mantener criterio previo SOLO para especiales antiguas.
+            m = Month(FileDateTime(Archivo))
         End If
-        IncluirEnRango = (m >= (Ini + 1) \ 2 And m <= (Fin + 1) \ 2)
+        IncluirEnRango = (m >= ((Ini + 1) \ 2) And m <= ((fin + 1) \ 2))
     End If
 End Function
-
 ' comentario
