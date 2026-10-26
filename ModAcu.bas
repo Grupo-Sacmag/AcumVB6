@@ -251,6 +251,7 @@ Public Function EsquemaNuevo(ByVal Archivo As String) As Boolean
     ' FileDateTime NO indica el formato de los registros, cambia al copiar.
     EsquemaNuevo = ArchivoMarcaSeparacion2026(Archivo)
 End Function
+
 Public Function ClasificarNominaAcum(ByVal NombreArchivo As String) As TipoNominaAcum
     Dim n As String
     Dim tp As String
@@ -275,8 +276,7 @@ Public Function ClasificarNominaAcum(ByVal NombreArchivo As String) As TipoNomin
             ClasificarNominaAcum = taSeparacion2026LIQ
             Exit Function
         End If
-        Err.Raise vbObjectError + 6201, "ClasificarNominaAcum", _
-                  "Archivo marcado como separacion nueva sin nombre LIQ/FINI: " & NombreArchivo
+        Err.Raise vbObjectError + 6201, "ClasificarNominaAcum", "Archivo marcado como separacion nueva sin nombre LIQ/FINI: " & NombreArchivo
     End If
 
     ' Conserva interpretacion de versiones previas marcadas con .TIP.
@@ -291,8 +291,14 @@ Public Function ClasificarNominaAcum(ByVal NombreArchivo As String) As TipoNomin
         End If
     End If
 
-    If InStr(1, n, "LIQ", vbTextCompare) > 0 Or _
-       InStr(1, n, "FINI", vbTextCompare) > 0 Then
+    ' Finiquitos historicos tipo ENE2FI26.NOM, sin marca 2026.
+    ' No son quincenas ordinarias ni tienen formato de separacion nueva.
+    If n Like "???2FI##.NOM" Then
+        ClasificarNominaAcum = taLiquidacion
+        Exit Function
+    End If
+
+    If InStr(1, n, "LIQ", vbTextCompare) > 0 Or InStr(1, n, "FINI", vbTextCompare) > 0 Then
         ClasificarNominaAcum = taLiquidacion
     ElseIf InStr(1, n, "AGUI", vbTextCompare) > 0 Then
         ClasificarNominaAcum = taAguinaldo
@@ -381,16 +387,16 @@ Public Sub CalcularConceptos(ByVal Tipo As TipoNominaAcum, ByVal Archivo As Stri
 End Sub
 ' Lee Archivo.TIP (TIPO|VERSION|MES). False si no existe o est? mal formado.
 Public Function LeerMarcaTipo(ByVal Archivo As String, Tipo As String, ver As Integer, Mes As Integer) As Boolean
-    Dim f As Integer, ruta As String, linea As String, partes() As String
+    Dim f As Integer, Ruta As String, linea As String, partes() As String
 
     Tipo = "": ver = 0: Mes = 0
     Archivo = Trim$(Archivo)
     If Len(Archivo) < 5 Then Exit Function
-    ruta = Left$(Archivo, Len(Archivo) - 4) & ".TIP"
+    Ruta = Left$(Archivo, Len(Archivo) - 4) & ".TIP"
 
     On Error GoTo fin
     f = FreeFile
-    Open ruta For Input As #f        ' si no existe, error 53 -> fin
+    Open Ruta For Input As #f        ' si no existe, error 53 -> fin
     Line Input #f, linea
     Close #f
     On Error GoTo 0

@@ -4,24 +4,24 @@ Begin VB.Form Camdir
    ClientHeight    =   5625
    ClientLeft      =   60
    ClientTop       =   345
-   ClientWidth     =   7410
+   ClientWidth     =   8640
    Icon            =   "CAMARCH.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
    ScaleHeight     =   5625
-   ScaleWidth      =   7410
+   ScaleWidth      =   8640
    StartUpPosition =   2  'CenterScreen
    Begin VB.DriveListBox Drive1 
       Height          =   315
       Left            =   120
       TabIndex        =   2
       Top             =   4560
-      Width           =   2895
+      Width           =   3615
    End
    Begin VB.FileListBox File1 
       Height          =   4770
-      Left            =   3240
+      Left            =   4440
       TabIndex        =   1
       Top             =   240
       Width           =   3975
@@ -31,14 +31,14 @@ Begin VB.Form Camdir
       Left            =   120
       TabIndex        =   0
       Top             =   240
-      Width           =   2895
+      Width           =   4215
    End
    Begin VB.Label Label2 
       Height          =   255
       Left            =   1560
       TabIndex        =   4
       Top             =   5160
-      Width           =   5535
+      Width           =   6855
    End
    Begin VB.Label Label1 
       Alignment       =   1  'Right Justify
@@ -239,17 +239,17 @@ Private Sub GuardarDirectorio()
 
 ErrorGuardar:
 
-    Dim NumeroError As Long
+    Dim numeroError As Long
     Dim DescripcionError As String
 
-    NumeroError = Err.Number
+    numeroError = Err.Number
     DescripcionError = Err.Description
 
     On Error Resume Next
     Close 3
     On Error GoTo 0
 
-    MsgBox "No fue posible guardar el directorio seleccionado." & vbCrLf & vbCrLf & "Error: " & CStr(NumeroError) & vbCrLf & DescripcionError, vbExclamation, "Directorio"
+    MsgBox "No fue posible guardar el directorio seleccionado." & vbCrLf & vbCrLf & "Error: " & CStr(numeroError) & vbCrLf & DescripcionError, vbExclamation, "Directorio"
 
 End Sub
 
@@ -287,8 +287,8 @@ Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
         ' NO
         '==========================================================
         Case vbNo
-            Close
-            End
+            ' Regresar a Acumulados sin cerrar la aplicacion.
+            Exit Sub
         '==========================================================
         ' CANCELAR
         '==========================================================

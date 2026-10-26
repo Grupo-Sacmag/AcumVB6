@@ -79,12 +79,16 @@ Private Function EntradaAxNomVisual(ByVal entradaOriginal As String) As String
     EntradaAxNomVisual = Join(ordenada, vbTab)
 End Function
 
+
 Sub ReAper()
-    Axn1.Cols = NCOLS         ' NUEVO
+
+    Axn1.Cols = NCOLS
     Axn1.Row = 0
-    Axn1.Col = 0: Axn1.CellFontBold = True: Axn1.ColWidth(0) = 600: Axn1.CellAlignment = 3: Axn1.Text = "N�m."
+
+    Axn1.Col = 0: Axn1.CellFontBold = True: Axn1.ColWidth(0) = 600: Axn1.CellAlignment = 3: Axn1.Text = "Num."
     Axn1.ColAlignment(0) = 4
-    Axn1.Col = 1: Axn1.CellFontBold = True: Axn1.ColWidth(1) = 3200: Axn1.CellAlignment = 3: Axn1.Text = "N�mbre."
+
+    Axn1.Col = 1: Axn1.CellFontBold = True: Axn1.ColWidth(1) = 3200: Axn1.CellAlignment = 3: Axn1.Text = "Nombre."
     Axn1.Col = 2: Axn1.CellFontBold = True: Axn1.ColWidth(2) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Dias"
     Axn1.Col = 3: Axn1.CellFontBold = True: Axn1.ColWidth(3) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Sueldos"
     Axn1.Col = 4: Axn1.CellFontBold = True: Axn1.ColWidth(4) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Prem.Punt"
@@ -93,6 +97,21 @@ Sub ReAper()
     Axn1.Col = 7: Axn1.CellFontBold = True: Axn1.ColWidth(7) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Otras"
     Axn1.Col = 8: Axn1.CellFontBold = True: Axn1.ColWidth(8) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Aguinaldo"
     Axn1.Col = 9: Axn1.CellFontBold = True: Axn1.ColWidth(9) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "P.T.U."
+
+    ' ==============================================
+    ' COLUMNAS ESPECIALES - PERCEPCIONES
+    ' ==============================================
+
+    Axn1.Col = 10: Axn1.CellFontBold = True: Axn1.ColWidth(10) = 3000: Axn1.CellAlignment = 3: Axn1.Text = "Compensaciones"
+    Axn1.Col = 11: Axn1.CellFontBold = True: Axn1.ColWidth(11) = 3300: Axn1.CellAlignment = 3: Axn1.Text = "Prima de Antiguedad"
+    Axn1.Col = 12: Axn1.CellFontBold = True: Axn1.ColWidth(12) = 2800: Axn1.CellAlignment = 3: Axn1.Text = "Indemnizacion"
+    Axn1.Col = 13: Axn1.CellFontBold = True: Axn1.ColWidth(13) = 3400: Axn1.CellAlignment = 3: Axn1.Text = "Sueldos Vacaciones"
+    Axn1.Col = 14: Axn1.CellFontBold = True: Axn1.ColWidth(14) = 1500: Axn1.CellAlignment = 3: Axn1.Text = "Bono"
+
+    ' ==============================================
+    ' RESTO DE LAS COLUMNAS
+    ' ==============================================
+
     Axn1.Col = 15: Axn1.CellFontBold = True: Axn1.ColWidth(15) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Exentos"
     Axn1.Col = 16: Axn1.CellFontBold = True: Axn1.ColWidth(16) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Total"
     Axn1.Col = 17: Axn1.CellFontBold = True: Axn1.ColWidth(17) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Impto."
@@ -100,20 +119,17 @@ Sub ReAper()
     Axn1.Col = 19: Axn1.CellFontBold = True: Axn1.ColWidth(19) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Cr.Apl."
     Axn1.Col = 20: Axn1.CellFontBold = True: Axn1.ColWidth(20) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Impto.Ret."
     Axn1.Col = 21: Axn1.CellFontBold = True: Axn1.ColWidth(21) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Cr.Pag."
-    Axn1.Col = 22: Axn1.CellFontBold = True: Axn1.ColWidth(22) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Subdio.No apl."
+    Axn1.Col = 22: Axn1.CellFontBold = True: Axn1.ColWidth(22) = 1700: Axn1.CellAlignment = 3: Axn1.Text = "Subdio.No apl."
     Axn1.Col = 23: Axn1.CellFontBold = True: Axn1.ColWidth(23) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "IMSS"
     Axn1.Col = 24: Axn1.CellFontBold = True: Axn1.ColWidth(24) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Prestamos"
-    Axn1.Col = 25: Axn1.CellFontBold = True: Axn1.ColWidth(25) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Pensi�n Ali"
+    Axn1.Col = 25: Axn1.CellFontBold = True: Axn1.ColWidth(25) = 1500: Axn1.CellAlignment = 3: Axn1.Text = "Pension Ali"
     Axn1.Col = 26: Axn1.CellFontBold = True: Axn1.ColWidth(26) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Fonacot"
     Axn1.Col = 27: Axn1.CellFontBold = True: Axn1.ColWidth(27) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Infonavit"
-    ' ---- NUEVO: columnas LIQ y ESP ----
-    Axn1.Col = 10: Axn1.CellFontBold = True: Axn1.ColWidth(10) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "Compensaciones"
-    Axn1.Col = 11: Axn1.CellFontBold = True: Axn1.ColWidth(11) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "P. Antig�edad"
-    Axn1.Col = 12: Axn1.CellFontBold = True: Axn1.ColWidth(12) = 1300: Axn1.CellAlignment = 3: Axn1.Text = "Indemnizaci�n"
-    Axn1.Col = 13: Axn1.CellFontBold = True: Axn1.ColWidth(13) = 1600: Axn1.CellAlignment = 3: Axn1.Text = "Sueldos Vacaciones"
-    Axn1.Col = 14: Axn1.CellFontBold = True: Axn1.ColWidth(14) = 1200: Axn1.CellAlignment = 3: Axn1.Text = "Bono"
+
     Axn1.Rows = 1
+
 End Sub
+
 
 Private Sub AuxEdCop_Click()
   Dim Temporal1

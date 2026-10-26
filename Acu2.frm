@@ -58,7 +58,7 @@ Begin VB.Form Acu21
             Caption         =   "&Alfabetico"
          End
          Begin VB.Menu ArOrNum 
-            Caption         =   "&N�merico"
+            Caption         =   "&Numerico"
          End
       End
       Begin VB.Menu sep2 
@@ -77,7 +77,7 @@ Begin VB.Form Acu21
          Caption         =   "-"
       End
       Begin VB.Menu ArcImp 
-         Caption         =   "&Impresi�n"
+         Caption         =   "&Impresion"
       End
       Begin VB.Menu ArcSep3 
          Caption         =   "-"
@@ -87,7 +87,7 @@ Begin VB.Form Acu21
       End
    End
    Begin VB.Menu Edi 
-      Caption         =   "&Edici�n"
+      Caption         =   "&Edicion"
       Begin VB.Menu EditDupl 
          Caption         =   "&Buscar Duplicados"
       End
@@ -384,7 +384,7 @@ Begin VB.Form Acu21
       End
    End
    Begin VB.Menu versionActual 
-      Caption         =   "Versi�n"
+      Caption         =   "Version"
    End
 End
 Attribute VB_Name = "Acu21"
@@ -405,6 +405,14 @@ Dim Directorio1 As String
 Dim Directorio2 As String
 Dim PrefijoArch As String
 Dim Conc As ConceptosNom
+Dim nominaConMovimientos As Boolean
+
+
+Private mNominasVacias As String
+Private mNominasSinMovimientos As String
+Private mTotalNominasVacias As Long
+Private mTotalNominasSinMovimientos As Long
+
 
 Sub EditREp()
    Dim CadAnt As String, CadActual As String
@@ -580,10 +588,10 @@ ReintentarDirectorio:
 
 DirectorioNoDisponible:
 
-    Dim NumeroError As Long
+    Dim numeroError As Long
     Dim DescripcionError As String
 
-    NumeroError = Err.Number
+    numeroError = Err.Number
     DescripcionError = Err.Description
 
     On Error GoTo 0
@@ -594,7 +602,7 @@ DirectorioNoDisponible:
            "Ruta guardada:" & vbCrLf & _
            RutaGuardada & _
            vbCrLf & vbCrLf & _
-           "Error " & CStr(NumeroError) & ": " & DescripcionError & _
+           "Error " & CStr(numeroError) & ": " & DescripcionError & _
            vbCrLf & vbCrLf & _
            "Seleccione nuevamente el directorio de trabajo.", _
            vbExclamation, _
@@ -709,44 +717,58 @@ Private Function EntradaAcu2Visual(ByVal entradaOriginal As String) As String
     EntradaAcu2Visual = Join(ordenada, vbTab)
 End Function
 
+
 Sub encabezado()
 
     Dacu1.Row = 0
-    Dacu1.Col = 0: Dacu1.CellFontBold = True: Dacu1.ColWidth(0) = 600:  Dacu1.CellAlignment = 3: Dacu1.Text = "N�m."
+
+    Dacu1.Col = 0: Dacu1.CellFontBold = True: Dacu1.ColWidth(0) = 600: Dacu1.CellAlignment = 3: Dacu1.Text = "Num."
     Dacu1.ColAlignment(0) = 4
-    Dacu1.Col = 1: Dacu1.CellFontBold = True: Dacu1.ColWidth(1) = 3200: Dacu1.CellAlignment = 3: Dacu1.Text = "N�mbre."
-    Dacu1.Col = 2: Dacu1.CellFontBold = True: Dacu1.ColWidth(2) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Dias"
-    Dacu1.Col = 3: Dacu1.CellFontBold = True: Dacu1.ColWidth(3) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Sueldos"
-    Dacu1.Col = 4: Dacu1.CellFontBold = True: Dacu1.ColWidth(4) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Prem.Punt"
-    Dacu1.Col = 5: Dacu1.CellFontBold = True: Dacu1.ColWidth(5) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "O.F."
-    Dacu1.Col = 6: Dacu1.CellFontBold = True: Dacu1.ColWidth(6) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "P.Vacac."
-    Dacu1.Col = 7: Dacu1.CellFontBold = True: Dacu1.ColWidth(7) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Otras"
-    Dacu1.Col = 8: Dacu1.CellFontBold = True: Dacu1.ColWidth(8) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Aguinaldo"
-    Dacu1.Col = 9: Dacu1.CellFontBold = True: Dacu1.ColWidth(9) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "P.T.U."
-    Dacu1.Col = 15: Dacu1.CellFontBold = True: Dacu1.ColWidth(15) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Exentos"
-    Dacu1.Col = 16: Dacu1.CellFontBold = True: Dacu1.ColWidth(16) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Total"
-    Dacu1.Col = 17: Dacu1.CellFontBold = True: Dacu1.ColWidth(17) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Impto."
-    Dacu1.Col = 18: Dacu1.CellFontBold = True: Dacu1.ColWidth(18) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Subdio.Apl."
-    Dacu1.Col = 19: Dacu1.CellFontBold = True: Dacu1.ColWidth(19) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Cr.Apl."
-    Dacu1.Col = 20: Dacu1.CellFontBold = True: Dacu1.ColWidth(20) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Impto.Ret."
-    Dacu1.Col = 21: Dacu1.CellFontBold = True: Dacu1.ColWidth(21) = 1600:  Dacu1.CellAlignment = 3: Dacu1.Text = "Cr.Pag."
-    Dacu1.Col = 22: Dacu1.CellFontBold = True: Dacu1.ColWidth(22) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Subdio.No apl."
-    Dacu1.Col = 23: Dacu1.CellFontBold = True: Dacu1.ColWidth(23) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "IMSS"
-    Dacu1.Col = 24: Dacu1.CellFontBold = True: Dacu1.ColWidth(24) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Prestamos"
-    Dacu1.Col = 25: Dacu1.CellFontBold = True: Dacu1.ColWidth(25) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Pensi�n Ali"
-    Dacu1.Col = 26: Dacu1.CellFontBold = True: Dacu1.ColWidth(26) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fonacot"
-    Dacu1.Col = 27: Dacu1.CellFontBold = True: Dacu1.ColWidth(27) = 1300:  Dacu1.CellAlignment = 3: Dacu1.Text = "Infonavit"
-    Dacu1.Col = 28: Dacu1.CellFontBold = True: Dacu1.ColWidth(28) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Rfc"
-    Dacu1.Col = 29: Dacu1.CellFontBold = True: Dacu1.ColWidth(29) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Imss"
-    Dacu1.Col = 30: Dacu1.CellFontBold = True: Dacu1.ColWidth(30) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Alta"
-    Dacu1.Col = 31: Dacu1.CellFontBold = True: Dacu1.ColWidth(31) = 1500:  Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Baja"
-    Dacu1.Col = 10: Dacu1.CellFontBold = True: Dacu1.ColWidth(10) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "Compensaciones"
-    Dacu1.Col = 11: Dacu1.CellFontBold = True: Dacu1.ColWidth(11) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "P. Antig�edad"
-    Dacu1.Col = 12: Dacu1.CellFontBold = True: Dacu1.ColWidth(12) = 1400: Dacu1.CellAlignment = 3: Dacu1.Text = "Indemnizaci�n"
-    Dacu1.Col = 13: Dacu1.CellFontBold = True: Dacu1.ColWidth(13) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Sueldos Vacaciones"
-    Dacu1.Col = 14: Dacu1.CellFontBold = True: Dacu1.ColWidth(14) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Bono"
+
+    Dacu1.Col = 1: Dacu1.CellFontBold = True: Dacu1.ColWidth(1) = 3200: Dacu1.CellAlignment = 3: Dacu1.Text = "Nombre."
+    Dacu1.Col = 2: Dacu1.CellFontBold = True: Dacu1.ColWidth(2) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Dias"
+    Dacu1.Col = 3: Dacu1.CellFontBold = True: Dacu1.ColWidth(3) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Sueldos"
+    Dacu1.Col = 4: Dacu1.CellFontBold = True: Dacu1.ColWidth(4) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Prem.Punt"
+    Dacu1.Col = 5: Dacu1.CellFontBold = True: Dacu1.ColWidth(5) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "O.F."
+    Dacu1.Col = 6: Dacu1.CellFontBold = True: Dacu1.ColWidth(6) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "P.Vacac."
+    Dacu1.Col = 7: Dacu1.CellFontBold = True: Dacu1.ColWidth(7) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Otras"
+    Dacu1.Col = 8: Dacu1.CellFontBold = True: Dacu1.ColWidth(8) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Aguinaldo"
+    Dacu1.Col = 9: Dacu1.CellFontBold = True: Dacu1.ColWidth(9) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "P.T.U."
+
+    ' ==============================================
+    ' COLUMNAS ESPECIALES - PERCEPCIONES
+    ' ==============================================
+
+    Dacu1.Col = 10: Dacu1.CellFontBold = True: Dacu1.ColWidth(10) = 3000: Dacu1.CellAlignment = 3: Dacu1.Text = "Compensaciones"
+    Dacu1.Col = 11: Dacu1.CellFontBold = True: Dacu1.ColWidth(11) = 3300: Dacu1.CellAlignment = 3: Dacu1.Text = "Prima de Antiguedad"
+    Dacu1.Col = 12: Dacu1.CellFontBold = True: Dacu1.ColWidth(12) = 2800: Dacu1.CellAlignment = 3: Dacu1.Text = "Indemnizacion"
+    Dacu1.Col = 13: Dacu1.CellFontBold = True: Dacu1.ColWidth(13) = 3400: Dacu1.CellAlignment = 3: Dacu1.Text = "Sueldos Vacaciones"
+    Dacu1.Col = 14: Dacu1.CellFontBold = True: Dacu1.ColWidth(14) = 1500: Dacu1.CellAlignment = 3: Dacu1.Text = "Bono"
+
+    ' ==============================================
+    ' RESTO DE LAS COLUMNAS
+    ' ==============================================
+
+    Dacu1.Col = 15: Dacu1.CellFontBold = True: Dacu1.ColWidth(15) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Exentos"
+    Dacu1.Col = 16: Dacu1.CellFontBold = True: Dacu1.ColWidth(16) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Total"
+    Dacu1.Col = 17: Dacu1.CellFontBold = True: Dacu1.ColWidth(17) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Impto."
+    Dacu1.Col = 18: Dacu1.CellFontBold = True: Dacu1.ColWidth(18) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Subdio.Apl."
+    Dacu1.Col = 19: Dacu1.CellFontBold = True: Dacu1.ColWidth(19) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Cr.Apl."
+    Dacu1.Col = 20: Dacu1.CellFontBold = True: Dacu1.ColWidth(20) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Impto.Ret."
+    Dacu1.Col = 21: Dacu1.CellFontBold = True: Dacu1.ColWidth(21) = 1600: Dacu1.CellAlignment = 3: Dacu1.Text = "Cr.Pag."
+    Dacu1.Col = 22: Dacu1.CellFontBold = True: Dacu1.ColWidth(22) = 1700: Dacu1.CellAlignment = 3: Dacu1.Text = "Subdio.No apl."
+    Dacu1.Col = 23: Dacu1.CellFontBold = True: Dacu1.ColWidth(23) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "IMSS"
+    Dacu1.Col = 24: Dacu1.CellFontBold = True: Dacu1.ColWidth(24) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Prestamos"
+    Dacu1.Col = 25: Dacu1.CellFontBold = True: Dacu1.ColWidth(25) = 1500: Dacu1.CellAlignment = 3: Dacu1.Text = "Pension Ali"
+    Dacu1.Col = 26: Dacu1.CellFontBold = True: Dacu1.ColWidth(26) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Fonacot"
+    Dacu1.Col = 27: Dacu1.CellFontBold = True: Dacu1.ColWidth(27) = 1300: Dacu1.CellAlignment = 3: Dacu1.Text = "Infonavit"
+    Dacu1.Col = 28: Dacu1.CellFontBold = True: Dacu1.ColWidth(28) = 1500: Dacu1.CellAlignment = 3: Dacu1.Text = "Rfc"
+    Dacu1.Col = 29: Dacu1.CellFontBold = True: Dacu1.ColWidth(29) = 1500: Dacu1.CellAlignment = 3: Dacu1.Text = "Imss"
+    Dacu1.Col = 30: Dacu1.CellFontBold = True: Dacu1.ColWidth(30) = 1500: Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Alta"
+    Dacu1.Col = 31: Dacu1.CellFontBold = True: Dacu1.ColWidth(31) = 1500: Dacu1.CellAlignment = 3: Dacu1.Text = "Fecha Baja"
 
 End Sub
+
 
 Private Sub acumTo_Click()
   AxNom1.Tipo = False
@@ -754,18 +776,25 @@ Private Sub acumTo_Click()
   Form_Load
 End Sub
 
+
 Private Sub ArAcuTT_Click()
+
+    If Not ValidarDirectorioAcum() Then Exit Sub
+
     NoIncLuye = 0
     Dacu1.Clear
     Dacu1.Rows = 1
+
     Close
-    Kill "Auxiliar\*.*"
+
     Acumula_todo
-    
+
     NoIncLuye = 0
     encabezado
     elecero
+
 End Sub
+
 
 Private Sub ArCamb_Click()
     Load Camdir
@@ -1064,11 +1093,30 @@ Sub reconocedornomina()
     If (NoIncLuye = 1) And EsNominaNormal(temporal.miarchivo) And Left(UCase(Arch1), 4) = "DIC2" Then EXTRA = 3
 End Sub
 
+
 Sub Acumula_todo()
-   Dim fVaciar As Integer
-   Dim nError As Long, dError As String
-   On Error GoTo manejo1
-   lectura
+
+    Dim fVaciar As Integer
+    Dim nError As Long, dError As String
+    Dim rutaPersonal As String
+    Dim bytesPersonal As Long
+
+    On Error GoTo manejo1
+
+    ' Verificar el catalogo ANTES de reconstruir acumulados.
+    If Not ValidarDirectorioAcum() Then Exit Sub
+    
+    mNominasVacias = ""
+    mNominasSinMovimientos = ""
+    mTotalNominasVacias = 0
+    mTotalNominasSinMovimientos = 0
+
+    Debug.Print "[ACUM] PERSONAL: "; rutaPersonal
+    Debug.Print "[ACUM] BYTES: "; bytesPersonal
+    Debug.Print "[ACUM] EMPLEADOS: "; FPer
+
+    lectura
+
    Open "AcuTemp" For Random As 10 Len = Len(temporal)
    Ftem = LOF(10) / Len(temporal)
    Close 5
@@ -1078,7 +1126,8 @@ Sub Acumula_todo()
    Kill "Auxiliar\AxN*.*"
    On Error GoTo 0
    
-   Open "personal.dno" For Random As 13 Len = Len(personal)
+   Close #13
+   Open "personal.dno" For Random Access Read As #13 Len = Len(personal)
    ' AcuNom2 es un resultado REGENERABLE. Truncar antes de escribir
    ' porque se agrego un campo al FINAL del Type Nacu.
    fVaciar = FreeFile
@@ -1124,7 +1173,9 @@ Sub Acumula_todo()
             End If
     Next r
     Dacu1.Rows = Dacu1.Rows + 1
-    Close: Exit Sub
+    Close
+    MostrarResumenNominasSinDatos
+    Exit Sub
 manejo1:
    nError = Err.Number: dError = Err.Description
    On Error Resume Next
@@ -1268,17 +1319,25 @@ Private Sub ArcImp_Click()
     Printer.FontSize = ultimo.impresion
 End Sub
 
+
 Private Sub ArNoincluye_Click()
+
+    If Not ValidarDirectorioAcum() Then Exit Sub
+
     NoIncLuye = 1
     Dacu1.Clear
     Dacu1.Rows = 1
+
     Close
-    Kill "Auxiliar\*.*"
+
     Acumula_todo
+
     NoIncLuye = 0
     encabezado
     elecero
+
 End Sub
+
 
 Private Sub ArOrAlf_Click()
     
@@ -2190,7 +2249,17 @@ Private Sub mesFin_Click(Index As Integer)
         Exit Sub
     End If
 
+    
+    If Not ValidarDirectorioAcum() Then Exit Sub
+    
+    ' Limpiar avisos de la acumulacion anterior.
+    mNominasVacias = ""
+    mNominasSinMovimientos = ""
+    mTotalNominasVacias = 0
+    mTotalNominasSinMovimientos = 0
+    
     Dacu1.Rows = 1
+
 
     If Dir("Auxiliar\AxNa*.*", vbArchive) <> "" Then
         Close 7
@@ -2199,12 +2268,19 @@ Private Sub mesFin_Click(Index As Integer)
 
     On Error GoTo manejo1
 
+    
     lectura
     Open "AcuTemp" For Random As 10 Len = Len(temporal)
     Ftem = LOF(10) / Len(temporal)
     Close 5
     Close 7
-    Open "personal.dno" For Random As 13 Len = Len(personal)
+    
+    ' Cerrar el canal anterior si estaba abierto.
+    Close #13
+    
+    ' Abrir personal.dno exclusivamente para lectura.
+    Open "personal.dno" For Random Access Read As #13 Len = Len(personal)
+
     ' Rehacer el archivo temporal completo tras ampliar Type Nacu.
     fVaciar = FreeFile
     Open "AcuNom2.dno" For Output As #fVaciar
@@ -2252,6 +2328,9 @@ Private Sub mesFin_Click(Index As Integer)
     Dacu1.Rows = Dacu1.Rows + 1
     sumando
     Close
+    
+    MostrarResumenNominasSinDatos
+    
     Exit Sub
 
 manejo1:
@@ -2288,6 +2367,7 @@ informacion.Show
 End Sub
 
 Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
+
     Dim TipoNominaActual As TipoNominaAcum
     Dim i As Long, fnom As Long, nAux As Long
     Dim totalCmp As Long, totalPersonal As Long
@@ -2295,128 +2375,157 @@ Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
     Dim dif As Currency, exentoIncluido As Currency
     Dim NoAux As String, nombreNom As String
     Dim errorNumero As Long, errorDescripcion As String
-    Dim hayDatos As Boolean
+    Dim hayDatos As Boolean, cmpAbierto As Boolean
+    Dim cmpCero As nomco
+    Dim faltantesCMP As Long, soloCMP As Long
+    Dim cmpTieneImporte As Boolean
 
     On Error GoTo ErrorProcesar
+
     nombreNom = Trim$(temporal.miarchivo)
     TipoNominaActual = ClasificarNominaAcum(nombreNom)
 
-    Open nombreNom For Random As #4 Len = Len(nomina)
+    ' Los archivos NOM originales son solo lectura.
+    Open nombreNom For Random Access Read As #4 Len = Len(nomina)
     If (LOF(4) Mod Len(nomina)) <> 0 Then
-        Err.Raise vbObjectError + 6203, "ProcesarArchivo", "Archivo NOM incompleto: " & nombreNom
+        Err.Raise vbObjectError + 6203, "ProcesarArchivo", _
+                  "Registro NOM incompleto: " & nombreNom
     End If
     fnom = LOF(4) \ Len(nomina)
 
-    Arch1 = Left$(nombreNom, Len(nombreNom) - 4) & ".cmp"
-    If Len(Dir$(Arch1)) = 0 Then
-        Err.Raise vbObjectError + 6204, "ProcesarArchivo", "Falta complemento: " & Arch1
-    End If
-    Open Arch1 For Random As #6 Len = Len(Nom_Com)
-    ' El complemento puede tener menos posiciones que el NOM.
-    ' Validar integridad fisica, pero no exigir misma cantidad de registros.
-    If (LOF(6) Mod Len(Nom_Com)) <> 0 Then
-        Err.Raise vbObjectError + 6205, "ProcesarArchivo", _
-            "El .cmp contiene un registro incompleto: " & Arch1
-    End If
-    totalCmp = LOF(6) \ Len(Nom_Com)
-
-    Debug.Print "[ACUM] Archivo: "; nombreNom
-    Debug.Print "[ACUM] NOM: "; fnom; " registros; CMP: "; totalCmp; " registros"
-
-    reconocedornomina
-    If EXTRA = 3 Then
-        Close #4, #6
+    ' No se pueden reconstruir percepciones desde un NOM de cero bytes.
+    
+    If fnom = 0 Then
+        mTotalNominasVacias = mTotalNominasVacias + 1
+        mNominasVacias = mNominasVacias & " - " & nombreNom & vbCrLf
+        
+        Debug.Print "[ACUM] NOM vacio: "; nombreNom
+    
+        Close #4
         Exit Sub
     End If
 
-    totalPersonal = LOF(13) \ Len(personal)
-    If fnom > totalPersonal Then
-        Err.Raise vbObjectError + 6206, "ProcesarArchivo", _
-            "El .NOM tiene mas registros que personal.dno: " & nombreNom
+
+    Arch1 = Left$(nombreNom, Len(nombreNom) - 4) & ".cmp"
+    totalCmp = 0
+    cmpAbierto = False
+
+    ' Si el archivo .cmp no existe, NO lo crea ni modifica.
+    If Len(Dir$(Trim$(Arch1))) <> 0 Then
+        Open Trim$(Arch1) For Random Access Read As #6 Len = Len(Nom_Com)
+        cmpAbierto = True
+        If (LOF(6) Mod Len(Nom_Com)) <> 0 Then
+            Err.Raise vbObjectError + 6205, "ProcesarArchivo", _
+                      "Registro CMP incompleto: " & Trim$(Arch1)
+        End If
+        totalCmp = LOF(6) \ Len(Nom_Com)
+    Else
+        Debug.Print "[ACUM] CMP inexistente: "; Trim$(Arch1)
     End If
+
+    reconocedornomina
+    If EXTRA = 3 Then GoTo SalidaNormal
+
+    totalPersonal = LOF(13) \ Len(personal)
+        
+    Debug.Print "=================================="
+    Debug.Print "DIRECTORIO: "; CurDir$
+    Debug.Print "NOMINA: "; nombreNom
+    Debug.Print "REGISTROS NOM: "; fnom
+    Debug.Print "REGISTROS PERSONAL: "; totalPersonal
+    Debug.Print "=================================="
+
+    
+    If fnom > totalPersonal Then
+        ' Historial: NOM puede contener posiciones adicionales antiguas.
+        ' Nunca ignorar importes de un empleado sin posicion en personal.dno.
+        For i = totalPersonal + 1 To fnom
+            Get #4, i, nomina
+            If Not RegistroNominaVacioAcum(nomina, _
+                   EsSeparacion2026Acum(TipoNominaActual)) Then
+                Err.Raise vbObjectError + 6206, "ProcesarArchivo", _
+                          "NOM contiene movimientos del empleado " & CStr(i) & _
+                          " que no existe en personal.dno: " & nombreNom
+            End If
+        Next i
+        fnom = totalPersonal
+    End If
+
+    
+    faltantesCMP = 0
+    soloCMP = 0
+    nominaConMovimientos = False
 
     For i = 1 To fnom
         Get #4, i, nomina
         Get #13, i, personal
 
-        ' Nunca leer fuera del ultimo registro del CMP.
-        ' IMPORTANTE: limpiar TODOS los importes para evitar reutilizar
-        ' accidentalmente los del empleado anterior.
-        If i <= totalCmp Then
+        ' Un CMP corto NO significa que el registro NOM este incompleto.
+        ' Nunca reutilizar el Nom_Com del empleado anterior.
+        Nom_Com = cmpCero
+        If cmpAbierto And i <= totalCmp Then
             Get #6, i, Nom_Com
-        Else
-            Nom_Com.PSubDi = 0
-            Nom_Com.subdio = 0
-            Nom_Com.subapl = 0
-            Nom_Com.subNap = 0
-            Nom_Com.CreTot = 0
-            Nom_Com.CredNe = 0
-            Nom_Com.ImpTot = 0
-
-            ' NOMINA ORDINARIA: no adivinar datos fiscales faltantes.
-            ' Solo se permite que falten posiciones de empleados sin movimientos.
-            If EXTRA = 0 Then
-                If nomina.dias <> 0 Or nomina.sueldo <> 0 Or _
-                   nomina.hs_nor <> 0 Or nomina.hs_dbl <> 0 Or _
-                   nomina.hs_tri <> 0 Or nomina.viaticos <> 0 Or _
-                   nomina.hsnor <> 0 Or nomina.hsdbl <> 0 Or _
-                   nomina.hstri <> 0 Or nomina.hs_no <> 0 Or _
-                   nomina.hs_db <> 0 Or nomina.hs_tr <> 0 Or _
-                   nomina.pvac <> 0 Or nomina.otras <> 0 Or _
-                   nomina.aguin <> 0 Or nomina.ptu <> 0 Or _
-                   nomina.exentos <> 0 Or nomina.ispt <> 0 Or _
-                   nomina.crdsal <> 0 Or nomina.imss <> 0 Or _
-                   nomina.prestamos <> 0 Or nomina.fonacot <> 0 Or _
-                   nomina.telefono <> 0 Or nomina.otraded <> 0 Then
-
-                    Err.Raise vbObjectError + 6209, "ProcesarArchivo", _
-                        "El empleado " & CStr(i) & " tiene movimientos en " & nombreNom & _
-                        " pero no tiene registro CMP. NOM=" & CStr(fnom) & _
-                        ", CMP=" & CStr(totalCmp) & "." & vbCrLf & _
-                        "Debe revisarse el guardado del complemento en Nomina."
-                End If
-            End If
         End If
 
-        ' La marca 20261010 NO es ingreso ni identifica un empleado pagado.
+        ' La marca 20261010 es exclusivamente identificador de formato.
+        ' Para nuevos FIN/LIQ el bono se guarda en hsnor.
         brutoNom = nomina.sueldo + nomina.hs_nor + nomina.hs_dbl + _
                    nomina.hs_tri + nomina.aguin + nomina.ptu + _
                    nomina.viaticos + nomina.pvac + nomina.otras
-        hayDatos = (brutoNom <> 0 Or nomina.exentos <> 0)
         If EsSeparacion2026Acum(TipoNominaActual) Then
             brutoNom = brutoNom + nomina.hsnor
-            If nomina.hsnor <> 0 Then hayDatos = True
         End If
 
-        If hayDatos Then
-            If EXTRA = 1 Then
-                Nom_Com.CredNe = 0: Nom_Com.CreTot = 0
-                Nom_Com.ImpTot = nomina.ispt
-                Nom_Com.subapl = 0: Nom_Com.subdio = 0: Nom_Com.subNap = 0
+        ' Incluir tambien empleados con dias, ISR o deducciones,
+        ' aun cuando no tengan percepciones.
+        hayDatos = Not RegistroNominaVacioAcum(nomina, _
+                        EsSeparacion2026Acum(TipoNominaActual))
+
+        If Not hayDatos Then
+            ' No convertir un CMP aislado en una percepcion que no existe.
+            ' Puede ser un residuo fiscal de un archivo historico.
+            cmpTieneImporte = (Nom_Com.PSubDi <> 0 Or _
+                              Nom_Com.subdio <> 0 Or Nom_Com.subapl <> 0 Or _
+                              Nom_Com.subNap <> 0 Or Nom_Com.CreTot <> 0 Or _
+                              Nom_Com.CredNe <> 0 Or Nom_Com.ImpTot <> 0)
+            If cmpTieneImporte Then soloCMP = soloCMP + 1
+        Else
+        nominaConMovimientos = True
+            If i > totalCmp Then
+                faltantesCMP = faltantesCMP + 1
+
+                ' Regla historica de ordinarias cuyo CMP completo esta vacio.
+                ' No deducir subsidios, creditos ni otros valores ausentes.
+                If EXTRA = 0 And totalCmp = 0 Then
+                    Nom_Com.ImpTot = nomina.ispt
+                End If
             End If
 
+            ' Si el CMP existe, conservar sus importes reales.
+            ' NO sustituir ImpTot por ispt solo por ser nomina especial.
             CalcularConceptos TipoNominaActual, nombreNom, Conc
-            brutoMapeado = Conc.Pextra + Conc.Pviaticos + Conc.Pvaca + _
-                          Conc.Potras + Conc.Pagui + Conc.PPTU + Conc.PCompensa + _
-                          Conc.PAntiguedad + Conc.PIndemniza + Conc.PSueldoVac + Conc.PBono
+
+            brutoMapeado = Conc.Pextra + Conc.Pviaticos + Conc.Pvaca + Conc.Potras + Conc.Pagui + Conc.PPTU + Conc.PCompensa + Conc.PAntiguedad + Conc.PIndemniza + Conc.PSueldoVac + Conc.PBono
             dif = brutoNom - nomina.sueldo - brutoMapeado
 
             If EsSeparacion2026Acum(TipoNominaActual) Then
-                ' En el esquema nuevo NO esconder diferencias en Otras.
                 If dif <> 0 Then
-                    Err.Raise vbObjectError + 6207, "ProcesarArchivo", _
-                       "Conceptos sin clasificar en " & nombreNom & _
-                       ", empleado " & CStr(i) & ", diferencia " & Format$(dif, "0.00")
+                    Err.Raise vbObjectError + 6207, "ProcesarArchivo", "Conceptos sin clasificar en " & nombreNom & ", empleado " & CStr(i) & ", diferencia " & Format$(dif, "0.00")
                 End If
                 If nomina.exentos < 0 Or nomina.exentos > brutoNom Then
-                    Err.Raise vbObjectError + 6208, "ProcesarArchivo", _
-                       "Exento invalido en " & nombreNom & ", empleado " & CStr(i)
+                    Err.Raise vbObjectError + 6208, "ProcesarArchivo", "Exento invalido en " & nombreNom & ", empleado " & CStr(i)
                 End If
                 exentoIncluido = nomina.exentos
             Else
-                ' El esquema historico conserva su regla anterior de cuadre.
+                ' Mantener el cuadre propio de versiones .TIP anteriores.
                 If TipoNominaActual >= taNuevaESP Then
                     If dif <> 0 Then Conc.Potras = Conc.Potras + dif
+                ElseIf dif <> 0 Then
+                    ' Una diferencia en un formato historico no debe ocultarse.
+                    Err.Raise vbObjectError + 6210, "ProcesarArchivo", _
+                              "Conceptos sin clasificar en " & nombreNom & _
+                              ", empleado " & CStr(i) & ", diferencia " & _
+                              Format$(dif, "0.00")
                 End If
                 exentoIncluido = 0
             End If
@@ -2437,6 +2546,7 @@ Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
             ArAcum.PBono = ArAcum.PBono + Conc.PBono
             ArAcum.Pexenta = ArAcum.Pexenta + nomina.exentos
             ArAcum.PexentaIncluida = ArAcum.PexentaIncluida + exentoIncluido
+
             ArAcum.DImpto = ArAcum.DImpto + Nom_Com.ImpTot
             ArAcum.DSubioAp = ArAcum.DSubioAp + Nom_Com.subapl
             ArAcum.DCrApl = ArAcum.DCrApl + Nom_Com.CreTot
@@ -2459,16 +2569,52 @@ Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
             Close #7
         End If
     Next i
+        
+    If Not nominaConMovimientos Then
+        mTotalNominasSinMovimientos = mTotalNominasSinMovimientos + 1
+        mNominasSinMovimientos = mNominasSinMovimientos & " - " & nombreNom & vbCrLf
+    End If
 
-    Close #4, #6
+
+    If faltantesCMP > 0 Then
+        Debug.Print "[ACUM] " & nombreNom & ": " & faltantesCMP & " empleados con NOM, pero sin su registro CMP."
+        Debug.Print "[ACUM] Los importes fiscales no guardados en CMP " & "no se pueden reconstruir automaticamente."
+    End If
+    If soloCMP > 0 Then
+        Debug.Print "[ACUM] " & nombreNom & ": " & soloCMP & " registros con CMP y sin movimiento NOM; no acumulados."
+    End If
+
+SalidaNormal:
+    Close #4
+    If cmpAbierto Then Close #6
     Exit Sub
+
 ErrorProcesar:
-    errorNumero = Err.Number: errorDescripcion = Err.Description
+    errorNumero = Err.Number
+    errorDescripcion = Err.Description
     On Error Resume Next
     Close #4, #6, #7
     On Error GoTo 0
     Err.Raise errorNumero, "ProcesarArchivo", errorDescripcion
 End Sub
+Private Function RegistroNominaVacioAcum(ByRef n As nom, _
+                                        ByVal EsSeparacionConMarca As Boolean) As Boolean
+    ' Comprobar los 24 campos Currency; solamente la marca de la
+    ' nueva separacion no representa un movimiento monetario.
+    RegistroNominaVacioAcum = _
+        (n.dias = 0 And n.hsnor = 0 And n.hs_no = 0 And _
+         n.hsdbl = 0 And n.hs_db = 0 And _
+         (n.hstri = 0 Or (EsSeparacionConMarca And n.hstri = CCur(20261010))) And _
+         n.hs_tr = 0 And n.ispt = 0 And n.crdsal = 0 And _
+         n.imss = 0 And n.sueldo = 0 And _
+         n.hs_nor = 0 And n.hs_dbl = 0 And n.hs_tri = 0 And _
+         n.viaticos = 0 And n.pvac = 0 And n.otras = 0 And _
+         n.aguin = 0 And n.ptu = 0 And n.exentos = 0 And _
+         n.prestamos = 0 And n.fonacot = 0 And _
+         n.telefono = 0 And n.otraded = 0)
+End Function
+
+
 Private Function IncluirEnRango(ByVal Archivo As String, ByVal Ini As Long, ByVal fin As Long) As Boolean
     Dim l As Long, m As Integer
     Dim tp As String, vr As Integer, mk As Integer
@@ -2498,4 +2644,136 @@ Private Function IncluirEnRango(ByVal Archivo As String, ByVal Ini As Long, ByVa
         IncluirEnRango = (m >= ((Ini + 1) \ 2) And m <= ((fin + 1) \ 2))
     End If
 End Function
+
+
+Private Function ValidarDirectorioAcum() As Boolean
+
+    Dim rutaPersonal As String
+    Dim problema As String
+    Dim bytesPersonal As Long
+    Dim directorioAnterior As String
+    Dim directorioCambiado As Boolean
+    Dim numeroError As Long
+
+    ValidarDirectorioAcum = False
+
+    Do
+        problema = ""
+        bytesPersonal = 0
+        rutaPersonal = CurDir$
+
+        If Right$(rutaPersonal, 1) <> "\" Then
+            rutaPersonal = rutaPersonal & "\"
+        End If
+
+        rutaPersonal = rutaPersonal & "personal.dno"
+
+        If Dir$(rutaPersonal) = "" Then
+
+            problema = "No existe el archivo personal.dno."
+
+        Else
+            On Error Resume Next
+            Err.Clear
+            bytesPersonal = FileLen(rutaPersonal)
+            numeroError = Err.Number
+            On Error GoTo 0
+
+            If numeroError <> 0 Then
+                problema = "No se pudo leer personal.dno."
+            ElseIf bytesPersonal = 0 Then
+                problema = "El archivo personal.dno esta vacio."
+            ElseIf (bytesPersonal Mod Len(personal)) <> 0 Then
+                problema = "personal.dno tiene una longitud incorrecta." & _
+                           vbCrLf & "Bytes: " & CStr(bytesPersonal)
+            End If
+        End If
+
+        If problema = "" Then
+            If Dir$("*.NOM") = "" Then
+                problema = "No se encontraron archivos .NOM."
+            End If
+        End If
+
+        If problema = "" Then
+
+            FPer = bytesPersonal \ Len(personal)
+
+            ' Actualizar los datos de empresa y personal si
+            ' se selecciono una carpeta diferente.
+            If directorioCambiado Then
+                Acu21.Caption = "Acumulado de sueldos"
+                abre
+            End If
+
+            ValidarDirectorioAcum = True
+            Exit Function
+
+        End If
+
+        If MsgBox("Directorio no valido:" & vbCrLf & _
+                  CurDir$ & vbCrLf & vbCrLf & _
+                  problema & vbCrLf & vbCrLf & _
+                  "Desea seleccionar otro directorio?", _
+                  vbYesNo + vbExclamation, _
+                  "Verificar directorio de nominas") = vbNo Then
+
+            Exit Function
+
+        End If
+
+        directorioAnterior = CurDir$
+
+        Load Camdir
+        Camdir.Show vbModal
+
+        If StrComp(directorioAnterior, CurDir$, vbTextCompare) <> 0 Then
+            directorioCambiado = True
+        End If
+
+        ' Al cerrar el selector se vuelve a validar.
+    Loop
+
+End Function
+
+
+Private Sub MostrarResumenNominasSinDatos()
+
+    Dim mensaje As String
+
+    If mTotalNominasVacias = 0 And _
+       mTotalNominasSinMovimientos = 0 Then
+        Exit Sub
+    End If
+
+    mensaje = "Revision de archivos de nomina" & vbCrLf
+
+    If mTotalNominasVacias > 0 Then
+
+        mensaje = mensaje & vbCrLf & _
+                  "Archivos .NOM vacios (" & _
+                  CStr(mTotalNominasVacias) & "):" & _
+                  vbCrLf & mNominasVacias
+
+    End If
+
+    If mTotalNominasSinMovimientos > 0 Then
+
+        mensaje = mensaje & vbCrLf & _
+                  "Archivos .NOM sin movimientos (" & _
+                  CStr(mTotalNominasSinMovimientos) & "):" & _
+                  vbCrLf & mNominasSinMovimientos
+
+    End If
+
+    mensaje = mensaje & vbCrLf & _
+              "Estos archivos no aportaron movimientos al acumulado." & _
+              vbCrLf & _
+              "No se modificaron los archivos originales."
+
+    MsgBox mensaje, vbInformation, "Acumulados"
+
+End Sub
+
+
 ' comentario
