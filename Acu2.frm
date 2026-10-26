@@ -2312,11 +2312,16 @@ Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
         Err.Raise vbObjectError + 6204, "ProcesarArchivo", "Falta complemento: " & Arch1
     End If
     Open Arch1 For Random As #6 Len = Len(Nom_Com)
-    totalCmp = LOF(6) \ Len(Nom_Com)
-    If totalCmp < fnom Then
+    ' El complemento puede tener menos posiciones que el NOM.
+    ' Validar integridad fisica, pero no exigir misma cantidad de registros.
+    If (LOF(6) Mod Len(Nom_Com)) <> 0 Then
         Err.Raise vbObjectError + 6205, "ProcesarArchivo", _
-            "El .cmp tiene menos registros que el .NOM: " & nombreNom
+            "El .cmp contiene un registro incompleto: " & Arch1
     End If
+    totalCmp = LOF(6) \ Len(Nom_Com)
+
+    Debug.Print "[ACUM] Archivo: "; nombreNom
+    Debug.Print "[ACUM] NOM: "; fnom; " registros; CMP: "; totalCmp; " registros"
 
     reconocedornomina
     If EXTRA = 3 Then
@@ -2332,8 +2337,46 @@ Private Sub ProcesarArchivo(ByVal PrefijoAux As String)
 
     For i = 1 To fnom
         Get #4, i, nomina
-        Get #6, i, Nom_Com
         Get #13, i, personal
+
+        ' Nunca leer fuera del ultimo registro del CMP.
+        ' IMPORTANTE: limpiar TODOS los importes para evitar reutilizar
+        ' accidentalmente los del empleado anterior.
+        If i <= totalCmp Then
+            Get #6, i, Nom_Com
+        Else
+            Nom_Com.PSubDi = 0
+            Nom_Com.subdio = 0
+            Nom_Com.subapl = 0
+            Nom_Com.subNap = 0
+            Nom_Com.CreTot = 0
+            Nom_Com.CredNe = 0
+            Nom_Com.ImpTot = 0
+
+            ' NOMINA ORDINARIA: no adivinar datos fiscales faltantes.
+            ' Solo se permite que falten posiciones de empleados sin movimientos.
+            If EXTRA = 0 Then
+                If nomina.dias <> 0 Or nomina.sueldo <> 0 Or _
+                   nomina.hs_nor <> 0 Or nomina.hs_dbl <> 0 Or _
+                   nomina.hs_tri <> 0 Or nomina.viaticos <> 0 Or _
+                   nomina.hsnor <> 0 Or nomina.hsdbl <> 0 Or _
+                   nomina.hstri <> 0 Or nomina.hs_no <> 0 Or _
+                   nomina.hs_db <> 0 Or nomina.hs_tr <> 0 Or _
+                   nomina.pvac <> 0 Or nomina.otras <> 0 Or _
+                   nomina.aguin <> 0 Or nomina.ptu <> 0 Or _
+                   nomina.exentos <> 0 Or nomina.ispt <> 0 Or _
+                   nomina.crdsal <> 0 Or nomina.imss <> 0 Or _
+                   nomina.prestamos <> 0 Or nomina.fonacot <> 0 Or _
+                   nomina.telefono <> 0 Or nomina.otraded <> 0 Then
+
+                    Err.Raise vbObjectError + 6209, "ProcesarArchivo", _
+                        "El empleado " & CStr(i) & " tiene movimientos en " & nombreNom & _
+                        " pero no tiene registro CMP. NOM=" & CStr(fnom) & _
+                        ", CMP=" & CStr(totalCmp) & "." & vbCrLf & _
+                        "Debe revisarse el guardado del complemento en Nomina."
+                End If
+            End If
+        End If
 
         ' La marca 20261010 NO es ingreso ni identifica un empleado pagado.
         brutoNom = nomina.sueldo + nomina.hs_nor + nomina.hs_dbl + _

@@ -361,8 +361,17 @@ Public Sub CalcularConceptos(ByVal Tipo As TipoNominaAcum, ByVal Archivo As Stri
             c.PSueldoVac = vi
 
         Case taBono
-            c.PBono = nomina.otras
-            c.Potras = 0
+            If nomina.viaticos <> 0 Then
+                ' Estructura comprobada en 1BONO.NOM.
+                c.PBono = nomina.viaticos
+        
+                ' Conservar Otras cuando exista.
+                c.Potras = nomina.otras
+            Else
+                ' Compatibilidad con Bono historico.
+                c.PBono = nomina.otras
+                c.Potras = 0
+            End If
 
         Case Else
             If UCase$(Left$(Trim$(Archivo), 3)) = "PRE" Then ht = vi: vi = 0
